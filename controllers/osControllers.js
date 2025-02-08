@@ -1,5 +1,5 @@
 
-const os = require('os'); //imporyit os
+const os = require('os'); //importit os
  //cofiguration os
 
 

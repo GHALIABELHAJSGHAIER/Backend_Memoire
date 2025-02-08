@@ -1,3 +1,5 @@
+//fichier pour connection base de donne
+
 const mongoose = require('mongoose'); //imporyit mongoose
 //cofiguration mongoose
 module.exports.connectToMongoDb = async () => { //module.exports y3ni exportitha nimchi lil app.js n'importiha
