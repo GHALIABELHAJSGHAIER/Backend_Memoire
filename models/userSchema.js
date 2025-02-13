@@ -17,15 +17,6 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      minLength: 6,
-      match: [
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
-        "Le mot de passe doit contenir au moins 6 caractères, une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial.",
-      ],
-    },
-    password: {
-      type: String,
-      required: true,
       minLength: 8,
       match: [
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
@@ -37,8 +28,8 @@ const userSchema = new mongoose.Schema(
       enum: ["admin", "client", "infi"],
     },
     user_image: { type: String, require: false, default: "client.png" },
-    //etat: Boolean
-    count: Number,
+    age: {type : Number },
+    count: {type : Number, default:'0'}
   },
   { timestamps: true }
 );
