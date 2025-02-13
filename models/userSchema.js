@@ -29,9 +29,13 @@ const userSchema = new mongoose.Schema(
     },
     user_image: { type: String, require: false, default: "client.png" },
     age: {type : Number },
+    maisons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Maison" }], // Un client peut avoir plusieurs maisons
     count: {type : Number, default:'0'}
   },
   { timestamps: true }
+
+ 
+
 );
 
 userSchema.pre("save", async function (next) {
