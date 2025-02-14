@@ -6,6 +6,8 @@ const userController = require('../controllers/userControllers');
 const upload = require('../middlewares/uploadFile');
 /* GET users listing. */
 router.post('/addUserClient',userController.addUserClient); 
+router.post('/signUp',userController.signUp);
+router.get('/signIn',userController.signIn);
 router.post('/addUserAdmin',userController.addUserAdmin); 
 router.get('/getAllUsers',userController.getAllUsers); 
 router.get('/getUserById/:id',userController.getUserById); 

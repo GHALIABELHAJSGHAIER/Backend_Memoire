@@ -1,4 +1,59 @@
 const userModel = require('../models/userSchema');
+const bcrypt = require("bcrypt");
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+const SECRET_KEY = process.env.SECRET_KEY
+
+ //  SIGN UP (Inscription)
+  module.exports.signUp = async (req,res) => {
+    try {
+        const {username , email , password , age} = req.body;
+        const roleClient = 'client'
+        // Vérifier si l'utilisateur existe déjà
+        const existingUser = await userModel.findOne({ email });
+         if (existingUser) {
+            return res.status(400).json({ message: "L'utilisateur existe déjà." });
+           }
+
+        // Hacher le mot de passe
+       //const hashedPassword = await bcrypt.hash(password, 10);
+        // Créer l'utilisateur
+        const user = await userModel.create({
+            username,email ,password,role :roleClient, age
+        })
+        res.status(200).json({message: "Inscription réussie.", user: user});
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+}
+//  SIGN IN (Connexion)
+module.exports.signIn = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Vérifier si l'utilisateur existe
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "Utilisateur non trouvé." });
+        }
+
+        // Vérifier le mot de passe
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: "Mot de passe incorrect." });
+        }
+
+        // Générer un token JWT
+        const token = jwt.sign({ userId: user._id, role: user.role }, SECRET_KEY, { expiresIn: '7d' });
+
+        res.status(200).json({ message: "Connexion réussie.", token });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
 
 module.exports.addUserClient = async (req,res) => {
     try {
