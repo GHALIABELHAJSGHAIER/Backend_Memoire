@@ -29,7 +29,7 @@ module.exports.getAllMaison = async (req, res) => {
     const maisonList = await Maison.find();
 
     if (!maisonList || maisonList.length === 0) {
-      throw new Error("Aucun voiture trouvé");
+      throw new Error("Aucun Maison trouvé");
     }
 
     res.status(200).json(maisonList);
@@ -57,6 +57,33 @@ module.exports.getMaisonById = async (req, res) => {
   }
 };
 
+//update
+module.exports.updateMaison = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { clientId, name, address  } = req.body;
+
+    const maisonById = await Maison.findById(id);
+
+    if (!maisonById) {
+      throw new Error("Maison introuvable");
+    }
+
+    if (!clientId & !name & !address) {
+      throw new Error("errue data");
+    }
+
+    await Maison.findByIdAndUpdate(id, {
+      $set: { clientId, name, address },
+    });
+
+    const updated = await Maison.findById(id);
+
+    res.status(200).json({ updated });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 //delete
 module.exports.deleteMaisonById = async (req, res) => {
@@ -66,7 +93,7 @@ module.exports.deleteMaisonById = async (req, res) => {
     const maisonById = await Maison.findById(id);
 
     if (!maisonById || maisonById.length === 0) {
-      throw new Error("voiture introuvable");
+      throw new Error("Maison  introuvable");
     }
 
       

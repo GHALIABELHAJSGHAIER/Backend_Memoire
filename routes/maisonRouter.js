@@ -7,5 +7,6 @@ router.get('/getMaisonsByClientId/:clientId', maisonController.getMaisonsByClien
 router.get('/getAllMaison', maisonController.getAllMaison); 
 router.get('/getMaisonById/:id', maisonController.getMaisonById); 
 router.delete('/deleteMaisonById/:id', maisonController.deleteMaisonById); 
+router.put('/updateMaison/:id', maisonController.updateMaison); 
 
 module.exports = router;

@@ -29,7 +29,8 @@ const userSchema = new mongoose.Schema(
     },
     user_image: { type: String, require: false, default: "client.png" },
     age: {type : Number },
-    maisons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Maison" }], // Un client peut avoir plusieurs maisons
+    maisons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Maison" }], // one to many
+
     count: {type : Number, default:'0'}
   },
   { timestamps: true }
@@ -56,5 +57,5 @@ userSchema.post("save", async function (req, res, next) {
   next();
 });
 
-const user = mongoose.model("User", userSchema);
-module.exports = user;
+const User = mongoose.model("User", userSchema);
+module.exports = User;
