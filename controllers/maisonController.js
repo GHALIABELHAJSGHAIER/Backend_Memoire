@@ -125,3 +125,59 @@ module.exports.getMaisonsByClientId = async (req, res) => {
     }
   };
   
+
+  module.exports.affect = async (req, res) => {
+    try {
+      const { userId, maisonId } = req.body;
+  
+      const maisonById = await Maison.findById(maisonId);
+  
+      if (!maisonById) {
+        throw new Error("Maison introuvable");
+      }
+      const checkIfUserExists = await User.findById(userId);
+      if (!checkIfUserExists) {
+        throw new Error("User not found");
+      }
+  
+      await Maison.findByIdAndUpdate(maisonId, {
+        $set: { User: userId },
+      });
+  
+      await User.findByIdAndUpdate(userId, {
+        $push: { maisons: maisonId },
+      });
+  
+      res.status(200).json('affected');
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+  
+  module.exports.desaffect = async (req, res) => {
+    try {
+      const { userId, maisonId } = req.body;
+  
+      const maisonById = await Maison.findById(maisonId);
+  
+      if (!maisonById) {
+        throw new Error("Maison introuvable");
+      }
+      const checkIfUserExists = await User.findById(userId);
+      if (!checkIfUserExists) {
+        throw new Error("User not found");
+      }
+  
+      await Maison.findByIdAndUpdate(maisonId, {
+        $unset: { User: 1 },// null "" 
+      });
+  
+      await User.findByIdAndUpdate(userId, {
+        $pull: { maisons: maisonId },
+      });
+  
+      res.status(200).json('desaffected');
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
