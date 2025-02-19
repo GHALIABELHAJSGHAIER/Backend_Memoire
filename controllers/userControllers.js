@@ -1,6 +1,8 @@
 const userModel = require('../models/userSchema');
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
+const User = require('../models/userSchema');
+const Maison = require('../models/maisonSchema');
 require('dotenv').config();
 const SECRET_KEY = process.env.SECRET_KEY
 
@@ -132,7 +134,12 @@ module.exports.deleteUserById= async (req,res) => {
           throw new Error("User not found");
         }
 
+        await Maison.updateMany({User : id},{
+            $unset: { User: 1 },// null "" 
+          });
+
         await userModel.findByIdAndDelete(id)
+
 
         res.status(200).json("deleted");
     } catch (error) {
