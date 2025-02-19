@@ -6,6 +6,16 @@ var logger = require("morgan");
 
 const { connectToMongoDb } = require("./config/db");
 
+// gemini
+
+// gemini
+const fetch = require('node-fetch');
+global.fetch = fetch;
+global.Headers = fetch.Headers;
+global.Request = fetch.Request;
+global.Response = fetch.Response;
+ 
+
 require("dotenv").config();
 
 
