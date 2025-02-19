@@ -124,11 +124,10 @@ module.exports.getUserById= async (req,res) => {
         res.status(500).json({message: error.message});
     }
 }
-
 module.exports.deleteUserById= async (req,res) => {
     try {
-        const {id} = req.params
 
+        const {id} = req.params
         const checkIfUserExists = await userModel.findById(id);
         if (!checkIfUserExists) {
           throw new Error("User not found");

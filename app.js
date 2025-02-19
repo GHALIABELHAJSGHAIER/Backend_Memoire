@@ -15,6 +15,7 @@ var indexRouter = require("./routes/indexRouter");
 var usersRouter = require("./routes/usersRouter");
 var osRouter = require("./routes/osRouter");
 var maisonRouter = require("./routes/maisonRouter");
+var GeminiRouter = require("./routes/GeminiRouter");
 
 var app = express();
 
@@ -28,6 +29,7 @@ app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/os", osRouter);
 app.use("/maisons", maisonRouter); // Route pour les maisons
+app.use("/gemini", GeminiRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
