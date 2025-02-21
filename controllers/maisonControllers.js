@@ -17,7 +17,7 @@ module.exports.addMaisonForClient = async (req, res) => {
     client.maisons.push(maison);
     await client.save();
 
-    res.status(200).json({ maison });
+    res.status(200).json("ajouter");
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

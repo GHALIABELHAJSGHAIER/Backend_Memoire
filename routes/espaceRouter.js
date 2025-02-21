@@ -4,6 +4,8 @@ const espaceController = require("../controllers/espaceControllers");
 
 // Routes pour les espaces
 router.post("/addEspaceForMaison", espaceController.addEspaceForMaison);
+router.delete("/supprimerEspace", espaceController.supprimerEspace);
+router.get("/getAllEspaces", espaceController.getAllEspaces);
 //router.delete("/supprimer/:id", espaceController.supprimerEspace);
 //router.get("/", espaceController.getEspaces);
 

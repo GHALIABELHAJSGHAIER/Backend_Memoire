@@ -1,5 +1,6 @@
 var createError = require("http-errors");
 var express = require("express");
+//const bodyParser = require("express.json"); // Assure-toi d'utiliser body-parser
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
@@ -29,6 +30,7 @@ var GeminiRouter = require("./routes/GeminiRouter");
 var espaceRouter = require("./routes/espaceRouter");
 
 var app = express();
+//app.use(bodyParser()); // Active le parsing du JSON
 
 app.use(logger("dev"));
 app.use(express.json());
@@ -41,7 +43,7 @@ app.use("/users", usersRouter);
 app.use("/os", osRouter);
 app.use("/maisons", maisonRouter); // Route pour les maisons
 app.use("/gemini", GeminiRouter);
-app.use("/espace", espaceRouter);
+app.use("/espaces", espaceRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
