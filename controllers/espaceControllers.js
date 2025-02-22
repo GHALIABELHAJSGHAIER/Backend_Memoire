@@ -10,7 +10,8 @@ module.exports.addEspaceForMaison = async (req, res) => {
       return res.status(404).json({ message: 'maison not found' });
     }
 
-    const espace = new Espace({ nom, maison: maisonId });
+    const espace = new Espace({ id: null, nom, maison: maisonId });
+
     await espace.save();
 
     // Ajouter la espace au maison
@@ -22,71 +23,33 @@ module.exports.addEspaceForMaison = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 }; 
-/*
-module.exports.addEspaceForMaison = async (req, res) => {
-    try {
-      const { maisonId, nom } = req.body;
-      
-      if (!nom) {
-        return res.status(400).json({ message: "Le champ 'nom' est requis." });
-      }
-  
-      const maison = await Maison.findById(maisonId);
-      if (!maison) {
-        return res.status(404).json({ message: "Maison introuvable" });
-      }
-  
-      const nouvelEspace = new Espace({ nom, maison: maisonId });
-      await nouvelEspace.save();
-  
-      res.status(201).json({ message: "Espace ajouté avec succès", espace: nouvelEspace });
-    } catch (error) {
-      res.status(500).json({ message: "Erreur serveur", erreur: error.message });
-    }
-  };
-  */
-  
 
-/*  //delete
-module.exports.supprimerEspace = async (req, res) => {
-    try {
-        const { id } = req.params;
-        await Espace.findOneAndDelete({ id });
-        res.status(200).json({ message: "Espace supprimé avec succès" });
-    } catch (error) {
-        res.status(500).json({ message: "Erreur lors de la suppression", error });
-    }
-};*/
 
-module.exports.supprimerEspace = async (req, res) => {
+ //delete
+module.exports.deleteEspaceById = async (req, res) => {
     try {
-        const { id } = req.params;
-    
-        // Vérification de l'existence de l'espace dans la base de données
-        const espaceById = await Espace.findById(id);
-    
-        if (!espaceById) {
-          // Si l'espace n'est pas trouvé, renvoyer une erreur 404
-          return res.status(404).json({ message: "Espace introuvable" });
+        const id = req.params.id;
+        
+        // Vérifier si l'ID est valide
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: "ID invalide" });
         }
-    
-        // Retirer la référence de cet espace dans les maisons où il est référencé
-        await Maison.updateMany(
-          { espaces: id }, // Rechercher les maisons qui contiennent cet espace
-          { $pull: { espaces: id } } // Retirer l'ID de l'espace du tableau 'espaces'
-        );
-    
-        // Supprimer l'espace de la collection Espace
+
+        const espaceById = await Espace.findById(new mongoose.Types.ObjectId(id));
+
+        if (!espaceById) {
+            return res.status(404).json({ message: "Espace introuvable" });
+        }
+
+        await Maison.updateMany({}, { $pull: { espaces: id } });
+
         await Espace.findByIdAndDelete(id);
-    
-        // Réponse de succès
+
         res.status(200).json({ message: "Espace supprimé avec succès" });
-      } catch (error) {
-        // En cas d'erreur, retourner un message d'erreur avec un statut 500
-        console.error(error);
+    } catch (error) {
         res.status(500).json({ message: error.message });
-      }
-  };
+    }
+};
   
 
 
@@ -104,5 +67,71 @@ module.exports.getAllEspaces = async (req, res) => {
       res.status(500).json({ message: error.message });
     }
   };
+
+module.exports.getAllEspacesByIdMaison = async (req, res) => {
+    try {
+      const { maisonId } = req.params;
+      const espaces = await Espace.find({ maison: maisonId });
+      
+      if (!espaces || espaces.length === 0) {
+        return res.status(404).json({ message: 'No spaces found for this house' });
+      }
+      
+      res.status(200).json({ espaces });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+
+  module.exports.getEspacesById = async (req, res) => {
+    try {
+      const id = req.params.id;
+  
+      if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+        return res.status(400).json({ message: "ID invalide" });
+      }
+  
+      const espace = await Espace.findById(id)
+        .populate("maison"); // Use lowercase 'maison'
+  
+      if (!espace) {
+        return res.status(404).json({ message: "Espace introuvable" });
+      }
+  
+      res.status(200).json(espace);
+    } catch (error) {
+      res.status(500).json({ message: "Erreur serveur", error: error.message });
+    }
+  };
+  
+  //update
+module.exports.updateEspace = async (req, res) => {
+    try {
+      const id = req.params.id;
+      const { maisonId, nom } = req.body;
+  
+      const espaceById = await Espace.findById(id);
+  
+      if (!espaceById) {
+        throw new Error("Maison introuvable");
+      }
+  
+      if (!maisonId & !nom) {
+        throw new Error("errue data");
+      }
+  
+      await Espace.findByIdAndUpdate(id, {
+        $set: { maisonId, nom },
+      });
+  
+      const updated = await Espace.findById(id);
+  
+      res.status(200).json({ updated });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+  
+
 
  
