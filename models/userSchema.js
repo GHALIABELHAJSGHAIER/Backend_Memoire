@@ -31,6 +31,8 @@ const userSchema = new mongoose.Schema(
     age: {type : Number },
     maisons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Maison" }], // one to many
 
+    etat:Boolean,
+
     count: {type : Number, default:'0'}
   },
   { timestamps: true }
@@ -44,7 +46,7 @@ userSchema.pre("save", async function (next) {
     const salt = await bcrypt.genSalt();
     const user = this;
     user.password = await bcrypt.hash(user.password, salt);
-    //user.etat = false ;
+    user.etat = false ;
     user.count = user.count + 1;
     next();
   } catch (error) {
@@ -56,6 +58,30 @@ userSchema.post("save", async function (req, res, next) {
   console.log("new user was created & saved successfully");
   next();
 });
+userSchema.statics.login = async function (email, password) {
+  //console.log(email, password);
+  const user = await this.findOne({ email });
+  //console.log(user)
+  if (user) {
+    const auth = await bcrypt.compare(password,user.password);
+    //console.log(auth)
+    if (auth) {
+      // if (user.etat === true) {
+      //   if (user.ban === false) {
+          return user;
+      //   } else {
+      //     throw new Error("ban");
+      //   }
+      // } else {
+      //   throw new Error("compte desactive ");
+      // }
+    } else {
+      throw new Error("password invalid"); 
+    }
+  } else {
+    throw new Error("email not found");
+  }
+};
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;

@@ -4,8 +4,10 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
-
+const session = require("express-session"); //session
+const cors = require("cors");
 const { connectToMongoDb } = require("./config/db");
+const { requireAuthUser } = require("./middlewares/authMiddlewares");
 
 // gemini
 
@@ -45,6 +47,24 @@ app.use("/maisons", maisonRouter); // Route pour les maisons
 app.use("/gemini", GeminiRouter);
 app.use("/espaces", espaceRouter);
 
+app.use(session({
+  secret: process.env.Net_Secret,
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    secure: false,
+    maxAge: 24 * 60 * 60 * 1000,
+  },
+}));
+app.use(express.static("public"));
+
+app.use(cors({
+  origin: process.env.Origin_Front,
+  methods: 'GET, POST, PUT, DELETE',
+  allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Credentials',
+  credentials: true
+}));
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
@@ -58,7 +78,7 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render("error");
+  res.json("error");
 });
 
 const server = http.createServer(app); //2

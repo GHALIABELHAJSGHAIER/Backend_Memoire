@@ -1,61 +1,39 @@
 const userModel = require('../models/userSchema');
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
-const User = require('../models/userSchema');
+//const User = require('../models/userSchema');
 const Maison = require('../models/maisonSchema');
 require('dotenv').config();
-const SECRET_KEY = process.env.SECRET_KEY
+//const SECRET_KEY = process.env.SECRET_KEY
+const maxTime = 24 *60 * 60 //24H
+//const maxTime = 1 * 60 //1min
+const createToken = (id) => {
+    return jwt.sign({id},'net secret pfe', {expiresIn: maxTime })
+}
+//67a73ce6ce362ba943c4c9d3 + net secret pfe + 1m
+//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3Yjc0MjE5ZTFhMTM2OWRlZmZkNzJiMCIsImlhdCI6MTc0MDA2MzI2MCwiZXhwIjoxNzQwNjY4MDYwfQ.38r9wuoAG-Toz_e5yPf1uBdv8bAxgWqU58FaZHUBYeA
 
- //  SIGN UP (Inscription)
-  module.exports.signUp = async (req,res) => {
+module.exports.login= async (req,res) => {
     try {
-        const {username , email , password , age} = req.body;
-        const roleClient = 'client'
-        // Vérifier si l'utilisateur existe déjà
-        const existingUser = await userModel.findOne({ email });
-         if (existingUser) {
-            return res.status(400).json({ message: "L'utilisateur existe déjà." });
-           }
-
-        // Hacher le mot de passe
-       //const hashedPassword = await bcrypt.hash(password, 10);
-        // Créer l'utilisateur
-        const user = await userModel.create({
-            username,email ,password,role :roleClient, age
-        })
-        res.status(200).json({message: "Inscription réussie.", user: user});
+        const { email , password } = req.body;
+        const user = await userModel.login(email, password)
+        const token = createToken(user._id)
+        res.cookie("jwt_token_9antra", token, {httpOnly:false,maxAge:maxTime * 1000})
+        res.status(200).json({user})
     } catch (error) {
         res.status(500).json({message: error.message});
     }
 }
-//  SIGN IN (Connexion)
-module.exports.signIn = async (req, res) => {
+
+module.exports.logout= async (req,res) => {
     try {
-        const { email, password } = req.body;
-
-        // Vérifier si l'utilisateur existe
-        const user = await userModel.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ message: "Utilisateur non trouvé." });
-        }
-
-        // Vérifier le mot de passe
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-            return res.status(401).json({ message: "Mot de passe incorrect." });
-        }
-
-        // Générer un token JWT
-        const token = jwt.sign({ userId: user._id, role: user.role }, SECRET_KEY, { expiresIn: '7d' });
-
-        res.status(200).json({ message: "Connexion réussie.", token });
-
+  
+        res.cookie("jwt_token_9antra", "", {httpOnly:false,maxAge:1})
+        res.status(200).json("logged")
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({message: error.message});
     }
-};
-
-
+}
 
 module.exports.addUserClient = async (req,res) => {
     try {
@@ -93,9 +71,12 @@ module.exports.addUserAdmin= async (req,res) => {
     try {
         const {username , email , password } = req.body;
         const roleAdmin = 'admin'
+        console.log(roleAdmin)
         const user = await userModel.create({
             username,email ,password,role :roleAdmin
+            
         })
+        
         res.status(200).json({user});
     } catch (error) {
         res.status(500).json({message: error.message});
@@ -105,7 +86,7 @@ module.exports.addUserAdmin= async (req,res) => {
 module.exports.getAllUsers= async (req,res) => {
     try {
         const userListe = await userModel.find()
-
+        //console.log(userListe)
         res.status(200).json({userListe});
     } catch (error) {
         res.status(500).json({message: error.message});
