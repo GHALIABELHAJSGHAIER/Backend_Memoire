@@ -62,7 +62,10 @@ module.exports.addUserClientWithImg = async (req,res) => {
         })
         res.status(200).json({user});
     } catch (error) {
-        res.status(500).json({message: error.message});
+        if (error.code === 11000) {
+            return res.status(400).json({ message: "Le nom d'utilisateur ou l'email existe déjà." });
+        }
+        res.status(500).json({ message: error.message });
     }
 }
 
