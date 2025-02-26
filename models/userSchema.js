@@ -30,6 +30,7 @@ const userSchema = new mongoose.Schema(
     user_image: { type: String, require: false, default: "client.png" },
     age: {type : Number },
     maisons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Maison" }], // one to many
+    appareils: [{ type: mongoose.Schema.Types.ObjectId, ref: "Appareil" }], // one to many
 
     etat:Boolean,
 

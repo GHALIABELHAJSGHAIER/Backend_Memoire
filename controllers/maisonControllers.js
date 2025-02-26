@@ -22,7 +22,6 @@ module.exports.addMaisonForClient = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 //get all maisioon 
 module.exports.getAllMaison = async (req, res) => {
   try {
@@ -56,7 +55,6 @@ module.exports.getMaisonById = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur", error: error.message });
   }
 };
-
 //update
 module.exports.updateMaison = async (req, res) => {
   try {

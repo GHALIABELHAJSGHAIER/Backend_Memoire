@@ -7,7 +7,9 @@ var logger = require("morgan");
 const session = require("express-session"); //session
 const cors = require("cors");
 const { connectToMongoDb } = require("./config/db");
-const { requireAuthUser } = require("./middlewares/authMiddlewares");
+//const { requireAuthUser } = require("./middlewares/authMiddlewares");
+const logMiddleware = require('./middlewares/logsMiddlewares'); //log
+
 
 // gemini
 
@@ -40,6 +42,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+app.use(logMiddleware)  //log
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
