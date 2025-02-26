@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema(
     age: {type : Number },
     maisons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Maison" }], // one to many
     appareils: [{ type: mongoose.Schema.Types.ObjectId, ref: "Appareil" }], // one to many
+    notifications: [{ type: mongoose.Schema.Types.ObjectId, ref: "Notification" }], // One-to-Many
 
     etat:Boolean,
 

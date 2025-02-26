@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 
-const CapteurMouvementSchema  = new mongoose.Schema({
+const capteurMouvementSchema  = new mongoose.Schema({
     sensibilite: { type: Number, required: true },
   }, { timestamps: true });
 
-const CapteurMouvement = mongoose.model("CapteurMouvement", CapteurMouvementSchema );
+const CapteurMouvement = mongoose.model("CapteurMouvement", capteurMouvementSchema );
 module.exports = CapteurMouvement;

@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 
-const CapteurGazSchema   = new mongoose.Schema({
+const capteurGazSchema   = new mongoose.Schema({
     seuilAlerte: { type: Number, required: true },
 }, { timestamps: true });
 
-const CapteurGaz = mongoose.model("CapteurGaz", CapteurGazSchema  );
+const CapteurGaz = mongoose.model("CapteurGaz", capteurGazSchema  );
 module.exports = CapteurGaz;
