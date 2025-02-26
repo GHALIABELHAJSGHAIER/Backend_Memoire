@@ -9,9 +9,7 @@ const cors = require("cors");
 const { connectToMongoDb } = require("./config/db");
 //const { requireAuthUser } = require("./middlewares/authMiddlewares");
 const logMiddleware = require('./middlewares/logsMiddlewares'); //log
-
-
-// gemini
+const initializeSocket = require('./socket/socket');
 
 // gemini
 const fetch = require('node-fetch');
@@ -33,7 +31,8 @@ var maisonRouter = require("./routes/maisonRouter");
 var GeminiRouter = require("./routes/GeminiRouter");
 var espaceRouter = require("./routes/espaceRouter");
 var appareilRouter = require("./routes/appareilRouter");
-var capteurRoute = require("./routes/capteurRoute");
+var capteurRoute = require("./routes/capteurRouter");
+var notificationRouter = require('./routes/notificationRouter');
 
 var app = express();
 //app.use(bodyParser()); // Active le parsing du JSON
@@ -53,8 +52,10 @@ app.use("/gemini", GeminiRouter);
 app.use("/espaces", espaceRouter);
 app.use("/appareils", appareilRouter);
 app.use("/capteurs", capteurRoute);
+app.use("/notifications", notificationRouter);
 
 app.use(session({
+  //secret: "monSecretUltraSecurisé",
   secret: process.env.Net_Secret,
   resave: false,
   saveUninitialized: true,
@@ -71,6 +72,9 @@ app.use(cors({
   allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Credentials',
   credentials: true
 }));
+
+// Initialisation de Socket.IO avec le serveur HTTP
+//const io = initializeSocket(server);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -93,3 +97,6 @@ server.listen(process.env.port, () => {
   connectToMongoDb()
   console.log("app is running on port 5000");
 });
+
+const io = initializeSocket(server); // Initialisation de socket.io
+module.exports = io;
