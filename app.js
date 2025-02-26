@@ -7,7 +7,7 @@ var logger = require("morgan");
 const session = require("express-session"); //session
 const cors = require("cors");
 const { connectToMongoDb } = require("./config/db");
-//const { requireAuthUser } = require("./middlewares/authMiddlewares");
+const { requireAuthUser } = require("./middlewares/authMiddlewares");
 const logMiddleware = require('./middlewares/logsMiddlewares'); //log
 const initializeSocket = require('./socket/socket');
 
@@ -36,6 +36,16 @@ var notificationRouter = require('./routes/notificationRouter');
 
 var app = express();
 //app.use(bodyParser()); // Active le parsing du JSON
+app.use(session({
+  //secret: "monSecretUltraSecurisé",
+  secret: process.env.Net_Secret,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false,
+    maxAge: 24 * 60 * 60 * 1000,
+  },
+}));
 
 app.use(logger("dev"));
 app.use(express.json());
@@ -54,16 +64,7 @@ app.use("/appareils", appareilRouter);
 app.use("/capteurs", capteurRoute);
 app.use("/notifications", notificationRouter);
 
-app.use(session({
-  //secret: "monSecretUltraSecurisé",
-  secret: process.env.Net_Secret,
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    secure: false,
-    maxAge: 24 * 60 * 60 * 1000,
-  },
-}));
+
 app.use(express.static("public"));
 
 app.use(cors({
