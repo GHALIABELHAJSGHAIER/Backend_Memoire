@@ -33,6 +33,7 @@ var maisonRouter = require("./routes/maisonRouter");
 var GeminiRouter = require("./routes/GeminiRouter");
 var espaceRouter = require("./routes/espaceRouter");
 var appareilRouter = require("./routes/appareilRouter");
+var capteurRoute = require("./routes/capteurRoute");
 
 var app = express();
 //app.use(bodyParser()); // Active le parsing du JSON
@@ -51,6 +52,7 @@ app.use("/maisons", maisonRouter); // Route pour les maisons
 app.use("/gemini", GeminiRouter);
 app.use("/espaces", espaceRouter);
 app.use("/appareils", appareilRouter);
+app.use("/capteurs", capteurRoute);
 
 app.use(session({
   secret: process.env.Net_Secret,
