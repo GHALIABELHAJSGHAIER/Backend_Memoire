@@ -15,11 +15,11 @@ router.post("/createNotification",  notification.createNotification);
 //router.post("/addNotification",  notification.addNotification);
 router.get("/getAllNotifications",  notification.getAllNotifications);
 //router.get("/getNotificationByUser", requireAuthUser, notification.getNotificationByUser);
-router.get("/getNotificationByUser", notification.getNotificationByUser);
-router.get("/getNotificationById/:id", notification.getNotificationById);
-router.put("/:id", notification.updateNotification);
-router.delete("/:id", notification.deleteNotification);
-router.put("/:id/read", notification.markNotificationAsRead);
-router.put('/:id/markAsRead', notification.markNotificationAsvu);
+router.get("/getNotificationByUser", requireAuthUser ,notification.getNotificationByUser);
+router.get("/getNotificationByIdNotification/:idNotif", notification.getNotificationByIdNotification);
+router.put("/updateNotification/:id", notification.updateNotification);
+router.delete("/deleteNotification/:id", notification.deleteNotification);
+router.put("/markNotificationAsRead/:id", notification.markNotificationAsRead);
+router.put('/markNotificationAsvu/:id', notification.markNotificationAsvu);
 
 module.exports = router;

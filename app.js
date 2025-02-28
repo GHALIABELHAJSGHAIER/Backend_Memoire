@@ -9,7 +9,6 @@ const cors = require("cors");
 const { connectToMongoDb } = require("./config/db");
 const { requireAuthUser } = require("./middlewares/authMiddlewares");
 const logMiddleware = require('./middlewares/logsMiddlewares'); //log
-const initializeSocket = require('./socket/socket');
 
 // gemini
 const fetch = require('node-fetch');
@@ -74,8 +73,7 @@ app.use(cors({
   credentials: true
 }));
 
-// Initialisation de Socket.IO avec le serveur HTTP
-//const io = initializeSocket(server);
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -99,5 +97,4 @@ server.listen(process.env.port, () => {
   console.log("app is running on port 5000");
 });
 
-const io = initializeSocket(server); // Initialisation de socket.io
-module.exports = io;
+
