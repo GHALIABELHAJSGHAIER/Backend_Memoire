@@ -27,11 +27,13 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["admin", "client", "infi"],
     },
-    user_image: { type: String, require: false, default: "client.png" },
+    user_image: { type: String, require: false, default: "photodeprofile.png" },
     age: {type : Number },
     maisons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Maison" }], // one to many
     appareils: [{ type: mongoose.Schema.Types.ObjectId, ref: "Appareil" }], // one to many
     notifications: [{ type: mongoose.Schema.Types.ObjectId, ref: "Notification" }], // One-to-Many
+    historiques: [{ type: mongoose.Schema.Types.ObjectId, ref: "HistoriqueAction" }], // One-to-Many
+
 
     etat:Boolean,
 
