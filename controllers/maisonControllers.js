@@ -22,6 +22,32 @@ module.exports.addMaisonForClient = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+module.exports.addMaison = async (req, res) => {
+  try {
+    const { name, address, image } = req.body;
+
+    // Vérifier que les champs obligatoires sont bien fournis
+    if (!name || !address || !image) {
+      return res.status(400).json({ message: 'Nom, adresse, et image sont requis' });
+    }
+
+    // Créer la maison avec l'image (base64)
+    const maison = new Maison({
+      name,
+      address,
+      image, // Stocker l'image base64
+    });
+
+    await maison.save();
+
+    res.status(200).json({ message: "Maison ajoutée avec succès !", maison });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
 //get all maisioon 
 module.exports.getAllMaison = async (req, res) => {
   try {
