@@ -2,24 +2,71 @@ const Maison = require('../models/maisonSchema');
 const User = require('../models/userSchema');
 
 
-module.exports.addMaisonForClient = async (req, res) => {
+module.exports.addMaisonForClient = async (req, res, next) => {
   try {
     const { clientId, name, address } = req.body;
-    const client = await User.findById(clientId);
+
+    // Vérifier si le client existe
+    const client = await User.findById(clientId).select("+maisons");
     if (!client) {
-      return res.status(404).json({ message: 'Client not found' });
+      return res.status(404).json({ status: false, message: 'Client not found' });
     }
 
-    const maison = new Maison({ name, address, client: clientId });
-    await maison.save();
+    // Créer la maison
+    const maison = await Maison.create({ name, address, client: clientId });
 
     // Ajouter la maison au client
     client.maisons.push(maison);
-    await client.save();
+    await client.save({ validateBeforeSave: false }); // Désactive la validation pour éviter de vérifier à nouveau la maison
 
-    res.status(200).json("ajouter");
+    return res.status(201).json({
+      status: true, success: maison });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error); // Passe l'erreur à un middleware de gestion des erreurs si disponible
+  }
+};
+
+module.exports.getMaisonsByClientId = async (req, res) => {
+  try {
+    const { clientId } = req.params;
+
+    // Vérifier si le client existe et obtenir ses maisons
+    const maisons = await Maison.find({ client: clientId });
+
+    // Si aucune maison n'est trouvée pour ce client
+    if (!maisons || maisons.length === 0) {
+      return res.status(404).json({ status: false, message: 'No houses found for this client' });
+    }
+
+    return res.status(200).json({ status: true, maisons });
+  } catch (error) {
+    return res.status(500).json({ status: false, message: error.message });
+  }
+};
+
+
+//delete
+module.exports.deleteMaisonById = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    // Vérifier si la maison existe
+    const maisonById = await Maison.findById(id);
+    if (!maisonById) {
+      return res.status(404).json({ status: false, message: "Maison not found" });
+    }
+
+    // Supprimer la maison du tableau de maisons des clients
+    await User.updateMany({ "maisons": id }, {
+      $pull: { maisons: id },
+    });
+
+    // Supprimer la maison
+    await Maison.findByIdAndDelete(id);
+
+    return res.status(200).json({ status: true, message: "Maison deleted successfully" });
+  } catch (error) {
+    return res.status(500).json({ status: false, message: error.message });
   }
 };
 
@@ -109,46 +156,11 @@ module.exports.updateMaison = async (req, res) => {
   }
 };
 
-//delete
-module.exports.deleteMaisonById = async (req, res) => {
-  try {
-    const id = req.params.id;
-
-    const maisonById = await Maison.findById(id);
-
-    if (!maisonById || maisonById.length === 0) {
-      throw new Error("Maison  introuvable");
-    }
-
-      
-    await User.updateMany({}, {
-        $pull: { maisons: id },
-      });
-
-    await Maison.findByIdAndDelete(id);
-
-    res.status(200).json("deleted");
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
 
 
-module.exports.getMaisonsByClientId = async (req, res) => {
-    try {
-      const { clientId } = req.params;
-      const maisons = await Maison.find({ client: clientId });
-  
-      if (!maisons) {
-        return res.status(404).json({ message: 'No houses found for this client' });
-      }
-  
-      res.status(200).json({ maisons });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  };
-  
+
+
+
 
   module.exports.affect = async (req, res) => {
     try {
