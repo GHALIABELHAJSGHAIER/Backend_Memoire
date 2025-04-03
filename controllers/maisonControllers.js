@@ -19,7 +19,7 @@ module.exports.addMaisonForClient = async (req, res, next) => {
     client.maisons.push(maison);
     await client.save({ validateBeforeSave: false }); // Désactive la validation pour éviter de vérifier à nouveau la maison
 
-    return res.status(201).json({
+    return res.status(200).json({
       status: true, success: maison });
   } catch (error) {
     next(error); // Passe l'erreur à un middleware de gestion des erreurs si disponible
