@@ -20,55 +20,96 @@ module.exports.addMaisonForClient = async (req, res, next) => {
     await client.save({ validateBeforeSave: false }); // Désactive la validation pour éviter de vérifier à nouveau la maison
 
     return res.status(200).json({
-      status: true, success: maison });
+      status: true, success: maison
+    });
   } catch (error) {
     next(error); // Passe l'erreur à un middleware de gestion des erreurs si disponible
   }
 };
-
-module.exports.getMaisonsByClientId = async (req, res) => {
+//getMaisonsByClientId
+module.exports.getMaisonsByClientId = async (req, res, next) => {
   try {
     const { clientId } = req.params;
 
-    // Vérifier si le client existe et obtenir ses maisons
-    const maisons = await Maison.find({ client: clientId });
-
-    // Si aucune maison n'est trouvée pour ce client
-    if (!maisons || maisons.length === 0) {
-      return res.status(404).json({ status: false, message: 'No houses found for this client' });
+    // Vérifier si clientId est valide (ex : format ObjectId si MongoDB)
+    if (!clientId || clientId.length !== 24) {
+      return res.status(400).json({ status: false, message: "Invalid client ID format" });
     }
 
-    return res.status(200).json({ status: true, maisons });
+    // Rechercher les maisons associées au clientId
+    const maisons = await Maison.find({ client: clientId });
+
+    // Vérifier si des maisons existent pour ce client
+    if (maisons.length === 0) {
+      return res.status(404).json({ status: false, message: "No houses found for this client" });
+    }
+
+    return res.status(200).json({ status: true,success: maisons });
   } catch (error) {
-    return res.status(500).json({ status: false, message: error.message });
+    next(error); // Utilisation de next() pour que l'erreur soit gérée par un middleware global
   }
 };
-
-
 //delete
-module.exports.deleteMaisonById = async (req, res) => {
+module.exports.deleteMaisonById = async (req, res, next) => {
   try {
-    const id = req.params.id;
+    const { id } = req.params;
+
+    // Vérifier si l'ID est valide (ex: ObjectId MongoDB)
+    if (!id || id.length !== 24) {
+      return res.status(400).json({ status: false, message: "Invalid house ID format" });
+    }
 
     // Vérifier si la maison existe
-    const maisonById = await Maison.findById(id);
-    if (!maisonById) {
+    const maison = await Maison.findById(id);
+    if (!maison) {
       return res.status(404).json({ status: false, message: "Maison not found" });
     }
 
-    // Supprimer la maison du tableau de maisons des clients
-    await User.updateMany({ "maisons": id }, {
-      $pull: { maisons: id },
-    });
+    // Supprimer la maison du tableau de maisons des utilisateurs
+    await User.updateMany({ maisons: id }, { $pull: { maisons: id } });
 
-    // Supprimer la maison
+    // Supprimer la maison de la base de données
     await Maison.findByIdAndDelete(id);
 
-    return res.status(200).json({ status: true, message: "Maison deleted successfully" });
+    return res.status(200).json({ status: true, success: "Maison deleted successfully" });
   } catch (error) {
-    return res.status(500).json({ status: false, message: error.message });
+    next(error); // Laisse Express gérer l'erreur avec un middleware global
   }
 };
+//update
+module.exports.updateMaison = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { name, address } = req.body;
+
+    // Vérifier si l'ID est valide (ex: ObjectId MongoDB)
+    if (!id || id.length !== 24) {
+      return res.status(400).json({ status: false, message: "Invalid house ID format" });
+    }
+
+    // Vérifier que des données sont envoyées
+    if (!name & !address) {
+      return res.status(400).json({ status: false, message: "No data provided for update" });
+    }
+
+    // Trouver et mettre à jour la maison
+    const updatedMaison = await Maison.findByIdAndUpdate(
+      id,
+      { $set: { name, address } },
+      { new: true, runValidators: true } // Retourne la maison mise à jour et applique les validateurs du schéma
+    );
+
+    if (!updatedMaison) {
+      return res.status(404).json({ status: false, message: "Maison not found" });
+    }
+
+    return res.status(200).json({ status: true, success: updatedMaison });
+  } catch (error) {
+    next(error); // Gestion des erreurs avec un middleware global
+  }
+};
+
+
 
 module.exports.addMaison = async (req, res) => {
   try {
@@ -93,8 +134,6 @@ module.exports.addMaison = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-
 //get all maisioon 
 module.exports.getAllMaison = async (req, res) => {
   try {
@@ -128,92 +167,57 @@ module.exports.getMaisonById = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur", error: error.message });
   }
 };
-//update
-module.exports.updateMaison = async (req, res) => {
+module.exports.affect = async (req, res) => {
   try {
-    const id = req.params.id;
-    const { clientId, name, address  } = req.body;
+    const { userId, maisonId } = req.body;
 
-    const maisonById = await Maison.findById(id);
+    const maisonById = await Maison.findById(maisonId);
 
     if (!maisonById) {
       throw new Error("Maison introuvable");
     }
-
-    if (!clientId & !name & !address) {
-      throw new Error("errue data");
+    const checkIfUserExists = await User.findById(userId);
+    if (!checkIfUserExists) {
+      throw new Error("User not found");
     }
 
-    await Maison.findByIdAndUpdate(id, {
-      $set: { clientId, name, address },
+    await Maison.findByIdAndUpdate(maisonId, {
+      $set: { User: userId },
     });
 
-    const updated = await Maison.findById(id);
+    await User.findByIdAndUpdate(userId, {
+      $push: { maisons: maisonId },
+    });
 
-    res.status(200).json({ updated });
+    res.status(200).json('affected');
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+module.exports.desaffect = async (req, res) => {
+  try {
+    const { userId, maisonId } = req.body;
 
+    const maisonById = await Maison.findById(maisonId);
 
-
-
-
-
-
-  module.exports.affect = async (req, res) => {
-    try {
-      const { userId, maisonId } = req.body;
-  
-      const maisonById = await Maison.findById(maisonId);
-  
-      if (!maisonById) {
-        throw new Error("Maison introuvable");
-      }
-      const checkIfUserExists = await User.findById(userId);
-      if (!checkIfUserExists) {
-        throw new Error("User not found");
-      }
-  
-      await Maison.findByIdAndUpdate(maisonId, {
-        $set: { User: userId },
-      });
-  
-      await User.findByIdAndUpdate(userId, {
-        $push: { maisons: maisonId },
-      });
-  
-      res.status(200).json('affected');
-    } catch (error) {
-      res.status(500).json({ message: error.message });
+    if (!maisonById) {
+      throw new Error("Maison introuvable");
     }
-  };
-  
-  module.exports.desaffect = async (req, res) => {
-    try {
-      const { userId, maisonId } = req.body;
-  
-      const maisonById = await Maison.findById(maisonId);
-  
-      if (!maisonById) {
-        throw new Error("Maison introuvable");
-      }
-      const checkIfUserExists = await User.findById(userId);
-      if (!checkIfUserExists) {
-        throw new Error("User not found");
-      }
-  
-      await Maison.findByIdAndUpdate(maisonId, {
-        $unset: { User: 1 },// null "" 
-      });
-  
-      await User.findByIdAndUpdate(userId, {
-        $pull: { maisons: maisonId },
-      });
-  
-      res.status(200).json('desaffected');
-    } catch (error) {
-      res.status(500).json({ message: error.message });
+    const checkIfUserExists = await User.findById(userId);
+    if (!checkIfUserExists) {
+      throw new Error("User not found");
     }
-  };
+
+    await Maison.findByIdAndUpdate(maisonId, {
+      $unset: { User: 1 },// null "" 
+    });
+
+    await User.findByIdAndUpdate(userId, {
+      $pull: { maisons: maisonId },
+    });
+
+    res.status(200).json('desaffected');
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
