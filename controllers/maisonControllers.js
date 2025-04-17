@@ -4,7 +4,7 @@ const User = require('../models/userSchema');
 
 module.exports.addMaisonForClient = async (req, res, next) => {
   try {
-    const { clientId, name, address } = req.body;
+    const { clientId, name, address ,numCartEsp } = req.body;
 
     // Vérifier si le client existe
     const client = await User.findById(clientId).select("+maisons");
@@ -13,7 +13,7 @@ module.exports.addMaisonForClient = async (req, res, next) => {
     }
 
     // Créer la maison
-    const maison = await Maison.create({ name, address, client: clientId });
+    const maison = await Maison.create({ name, address,numCartEsp, client: clientId });
 
     // Ajouter la maison au client
     client.maisons.push(maison);
@@ -80,7 +80,7 @@ module.exports.deleteMaisonById = async (req, res, next) => {
 module.exports.updateMaison = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, address } = req.body;
+    const { name, address,numCartEsp } = req.body;
 
     // Vérifier si l'ID est valide (ex: ObjectId MongoDB)
     if (!id || id.length !== 24) {
@@ -88,14 +88,14 @@ module.exports.updateMaison = async (req, res, next) => {
     }
 
     // Vérifier que des données sont envoyées
-    if (!name & !address) {
+    if (!name & !address & !numCartEsp) {
       return res.status(400).json({ status: false, message: "No data provided for update" });
     }
 
     // Trouver et mettre à jour la maison
     const updatedMaison = await Maison.findByIdAndUpdate(
       id,
-      { $set: { name, address } },
+      { $set: { name, address,numCartEsp } },
       { new: true, runValidators: true } // Retourne la maison mise à jour et applique les validateurs du schéma
     );
 
