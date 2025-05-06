@@ -3,7 +3,7 @@ const Cuisine = require("../models/cuisineSchema");
 const mongoose = require("mongoose");
 module.exports.createCuisine = async (req, res, next) => {
   try {
-    const {  espaceId,relayInc, temperature, humidity } = req.body;
+    const {  espaceId,relayInc, flamme, gaz } = req.body;
 
     // Vérifier si la espace existe
     const espace = await Espace.findById(espaceId).select("+cuisines");
@@ -12,7 +12,7 @@ module.exports.createCuisine = async (req, res, next) => {
     }
 
     // Créer l'espace
-    const cuisine = await Cuisine.create({ relayInc, temperature, humidity, espace: espaceId });
+    const cuisine = await Cuisine.create({ relayInc, flamme, gaz, espace: espaceId });
     //     const espace = await Espace.create({ nom, maison: maisonId });
 
     // Ajouter l'espace à la espace
@@ -40,7 +40,7 @@ module.exports.getCuisineData = async (req, res, next) => {
 module.exports.updateCuisine = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { relayInc, temperature, humidity } = req.body;
+    const { relayInc, flamme, gaz } = req.body;
 
     // Vérifier si l'ID est valide (ex: ObjectId MongoDB)
     if (!id || id.length !== 24) {
@@ -48,14 +48,14 @@ module.exports.updateCuisine = async (req, res, next) => {
     }
 
     // Vérifier que des données sont envoyées
-    if (!relayInc & !temperature & !humidity) {
+    if (!relayInc & !flamme & !gaz) {
       return res.status(400).json({ status: false, message: "No data provided for update" });
     }
 
     // Trouver et mettre à jour l'espace
     const updateCuisine = await Cuisine.findByIdAndUpdate(
       id,
-      { $set: { relayInc, temperature, humidity } },
+      { $set: { relayInc, flamme, gaz } },
       { new: true, runValidators: true } // Retourne l'espace mis à jour avec validation du schéma
     );
 

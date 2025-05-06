@@ -5,11 +5,11 @@ const cuisineSchema = new mongoose.Schema({
         type: Boolean,  // Type boolean pour le champ relay
         required: true  // Le champ est obligatoire
     },
-    temperature: {
+    flamme: {
         type: Number,  // Type number (float)
         required: true  // Le champ est obligatoire
     },
-    humidity: {
+    gaz: {
         type: Number,  // Type number (float)
         required: true  // Le champ est obligatoire
     },
