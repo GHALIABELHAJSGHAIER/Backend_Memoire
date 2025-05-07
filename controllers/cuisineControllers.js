@@ -1,151 +1,156 @@
 const Espace = require("../models/espaceSchema");
 const Cuisine = require("../models/cuisineSchema");
 const mongoose = require("mongoose");
-module.exports.createCuisine = async (req, res, next) => {
-  try {
-    const {  espaceId,relayInc, flamme, gaz } = req.body;
 
-    // Vérifier si la espace existe
-    const espace = await Espace.findById(espaceId).select("+cuisines");
-    if (!espace) {
-      return res.status(404).json({ status: false, message: "Espace not found" });
-    }
 
-    // Créer l'espace
-    const cuisine = await Cuisine.create({ relayInc, flamme, gaz, espace: espaceId });
-    //     const espace = await Espace.create({ nom, maison: maisonId });
-
-    // Ajouter l'espace à la espace
-    espace.cuisines.push(cuisine);
-    await espace.save({ validateBeforeSave: false });
-
-    return res.status(200).json({
-      status: true,
-      success: cuisine
-    });
-  } catch (error) {
-    next(error); // Passer l'erreur au middleware de gestion d'erreurs
-  }
-};
-module.exports.getCuisineData = async (req, res, next) => {
-    try {
-        let cuisine = await Cuisine.find(); // <-- la bonne méthode ici
-        res.json({ status: true, success: cuisine });
-    } catch (error) {
-        console.log("Erreur dans getCuisineData:", error);
-        next(error);
-    }
-};
-// //update
-module.exports.updateCuisine = async (req, res, next) => {
+module.exports.getCuisineById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { relayInc, flamme, gaz } = req.body;
 
-    // Vérifier si l'ID est valide (ex: ObjectId MongoDB)
+    // Vérifier si l'ID est valide (ObjectId)
     if (!id || id.length !== 24) {
-      return res.status(400).json({ status: false, message: "Invalid space ID format" });
+      return res.status(400).json({ status: false, message: "Invalid cuisine ID format" });
     }
 
-    // Vérifier que des données sont envoyées
-    if (!relayInc & !flamme & !gaz) {
-      return res.status(400).json({ status: false, message: "No data provided for update" });
-    }
+    const cuisine = await Cuisine.findById(id).populate("espace"); // tu peux aussi peupler l'espace si nécessaire
 
-    // Trouver et mettre à jour l'espace
-    const updateCuisine = await Cuisine.findByIdAndUpdate(
-      id,
-      { $set: { relayInc, flamme, gaz } },
-      { new: true, runValidators: true } // Retourne l'espace mis à jour avec validation du schéma
-    );
-
-    if (!updateCuisine) {
+    if (!cuisine) {
       return res.status(404).json({ status: false, message: "Cuisine not found" });
     }
 
-    return res.status(200).json({ status: true, success: updateCuisine });
+    return res.status(200).json({ status: true, success: cuisine });
   } catch (error) {
-    next(error); // Laisse Express gérer les erreurs avec un middleware global
+    console.log("Erreur dans getCuisineById:", error);
+    next(error);
   }
 };
-module.exports.getCuisineById = async (req, res, next) => {
-    try {
-      const { id } = req.params;
-  
-      // Vérifier si l'ID est valide (ObjectId)
-      if (!id || id.length !== 24) {
-        return res.status(400).json({ status: false, message: "Invalid cuisine ID format" });
-      }
-  
-      const cuisine = await Cuisine.findById(id).populate("espace"); // tu peux aussi peupler l'espace si nécessaire
-  
-      if (!cuisine) {
-        return res.status(404).json({ status: false, message: "Cuisine not found" });
-      }
-  
-      return res.status(200).json({ status: true, success: cuisine });
-    } catch (error) {
-      console.log("Erreur dans getCuisineById:", error);
-      next(error);
-    }
-  };
 
-  module.exports.updateRelayById = async (req, res, next) => {
-    try {
-      const { id } = req.params;
-      const { relayInc } = req.body;
-  
-      // Vérifier l'ID
-      if (!id || id.length !== 24) {
-        return res.status(400).json({ status: false, message: "Invalid cuisine ID format" });
-      }
-  
-      // Vérifier si relayInc est bien fourni
-      if (typeof relayInc !== "boolean") {
-        return res.status(400).json({ status: false, message: "relayInc must be a boolean value" });
-      }
-  
-      // Mettre à jour uniquement relayInc
-      const updatedCuisine = await Cuisine.findByIdAndUpdate(
-        id,
-        { $set: { relayInc } },
-        { new: true, runValidators: true }
-      );
-  
-      if (!updatedCuisine) {
-        return res.status(404).json({ status: false, message: "Cuisine not found" });
-      }
-  
-      return res.status(200).json({ status: true, success: updatedCuisine });
-    } catch (error) {
-      console.log("Erreur dans updateRelayById:", error);
-      next(error);
-    }
-  };
-  module.exports.getRelayById = async (req, res, next) => {
-    try {
-      const { id } = req.params;
-  
-      // Vérifier l'ID
-      if (!id || id.length !== 24) {
-        return res.status(400).json({ status: false, message: "Invalid cuisine ID format" });
-      }
-  
-      // Rechercher la cuisine et ne sélectionner que le champ relayInc
-      const cuisine = await Cuisine.findById(id).select("relayInc");
-  
-      if (!cuisine) {
-        return res.status(404).json({ status: false, message: "Cuisine not found" });
-      }
-  
-      return res.status(200).json({ status: true, relayInc: cuisine.relayInc });
-    } catch (error) {
-      console.log("Erreur dans getRelayById:", error);
-      next(error);
-    }
-  };
-  
+module.exports.updateRelayById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { relayInc } = req.body;
 
+    // Vérifier l'ID
+    if (!id || id.length !== 24) {
+      return res.status(400).json({ status: false, message: "Invalid cuisine ID format" });
+    }
+
+    // Vérifier si relayInc est bien fourni
+    if (typeof relayInc !== "boolean") {
+      return res.status(400).json({ status: false, message: "relayInc must be a boolean value" });
+    }
+
+    // Mettre à jour uniquement relayInc
+    const updatedCuisine = await Cuisine.findByIdAndUpdate(
+      id,
+      { $set: { relayInc } },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedCuisine) {
+      return res.status(404).json({ status: false, message: "Cuisine not found" });
+    }
+
+    return res.status(200).json({ status: true, success: updatedCuisine });
+  } catch (error) {
+    console.log("Erreur dans updateRelayById:", error);
+    next(error);
+  }
+};
+/////////////
+
+// module.exports.createCuisine = async (req, res, next) => {
+//   try {
+//     const {  espaceId,relayInc, flamme, gaz } = req.body;
+
+//     // Vérifier si la espace existe
+//     const espace = await Espace.findById(espaceId).select("+cuisines");
+//     if (!espace) {
+//       return res.status(404).json({ status: false, message: "Espace not found" });
+//     }
+
+//     // Créer l'espace
+//     const cuisine = await Cuisine.create({ relayInc, flamme, gaz, espace: espaceId });
+//     //     const espace = await Espace.create({ nom, maison: maisonId });
+
+//     // Ajouter l'espace à la espace
+//     espace.cuisines.push(cuisine);
+//     await espace.save({ validateBeforeSave: false });
+
+//     return res.status(200).json({
+//       status: true,
+//       success: cuisine
+//     });
+//   } catch (error) {
+//     next(error); // Passer l'erreur au middleware de gestion d'erreurs
+//   }
+// };
+// module.exports.getCuisineData = async (req, res, next) => {
+//     try {
+//         let cuisine = await Cuisine.find(); // <-- la bonne méthode ici
+//         res.json({ status: true, success: cuisine });
+//     } catch (error) {
+//         console.log("Erreur dans getCuisineData:", error);
+//         next(error);
+//     }
+// };
+// // //update
+// module.exports.updateCuisine = async (req, res, next) => {
+//   try {
+//     const { id } = req.params;
+//     const { relayInc, flamme, gaz } = req.body;
+
+//     // Vérifier si l'ID est valide (ex: ObjectId MongoDB)
+//     if (!id || id.length !== 24) {
+//       return res.status(400).json({ status: false, message: "Invalid space ID format" });
+//     }
+
+//     // Vérifier que des données sont envoyées
+//     if (!relayInc & !flamme & !gaz) {
+//       return res.status(400).json({ status: false, message: "No data provided for update" });
+//     }
+
+//     // Trouver et mettre à jour l'espace
+//     const updateCuisine = await Cuisine.findByIdAndUpdate(
+//       id,
+//       { $set: { relayInc, flamme, gaz } },
+//       { new: true, runValidators: true } // Retourne l'espace mis à jour avec validation du schéma
+//     );
+
+//     if (!updateCuisine) {
+//       return res.status(404).json({ status: false, message: "Cuisine not found" });
+//     }
+
+//     return res.status(200).json({ status: true, success: updateCuisine });
+//   } catch (error) {
+//     next(error); // Laisse Express gérer les erreurs avec un middleware global
+//   }
+// };
+
+//   module.exports.getRelayById = async (req, res, next) => {
+//     try {
+//       const { id } = req.params;
+  
+//       // Vérifier l'ID
+//       if (!id || id.length !== 24) {
+//         return res.status(400).json({ status: false, message: "Invalid cuisine ID format" });
+//       }
+  
+//       // Rechercher la cuisine et ne sélectionner que le champ relayInc
+//       const cuisine = await Cuisine.findById(id).select("relayInc");
+  
+//       if (!cuisine) {
+//         return res.status(404).json({ status: false, message: "Cuisine not found" });
+//       }
+  
+//       return res.status(200).json({ status: true, relayInc: cuisine.relayInc });
+//     } catch (error) {
+//       console.log("Erreur dans getRelayById:", error);
+//       next(error);
+//     }
+//   };
+  
+///////////////////2222222222222222222
 // module.exports.addEspaceForMaison = async (req, res, next) => {
 //   try {
 //     const { maisonId, nom } = req.body;
