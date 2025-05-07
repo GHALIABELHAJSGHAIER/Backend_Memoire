@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 
 module.exports.addEspaceForMaison = async (req, res, next) => {
   try {
-    const { maisonId, nom } = req.body;
+    const { maisonId, nom,type } = req.body;
 
     // Vérifier si la maison existe
     const maison = await Maison.findById(maisonId).select("+espaces");
@@ -13,7 +13,7 @@ module.exports.addEspaceForMaison = async (req, res, next) => {
     }
 
     // Créer l'espace
-    const espace = await Espace.create({ nom, maison: maisonId });
+    const espace = await Espace.create({ nom,type, maison: maisonId });
 
     // Ajouter l'espace à la maison
     maison.espaces.push(espace);
@@ -83,7 +83,7 @@ module.exports.deleteEspaceById = async (req, res, next) => {
 module.exports.updateEspace = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { nom } = req.body;
+    const { nom,type } = req.body;
 
     // Vérifier si l'ID est valide (ex: ObjectId MongoDB)
     if (!id || id.length !== 24) {
@@ -91,14 +91,14 @@ module.exports.updateEspace = async (req, res, next) => {
     }
 
     // Vérifier que des données sont envoyées
-    if (!nom) {
+    if (!nom & !type) {
       return res.status(400).json({ status: false, message: "No data provided for update" });
     }
 
     // Trouver et mettre à jour l'espace
     const updatedEspace = await Espace.findByIdAndUpdate(
       id,
-      { $set: { nom } },
+      { $set: { nom , type  } },
       { new: true, runValidators: true } // Retourne l'espace mis à jour avec validation du schéma
     );
 
