@@ -13,7 +13,7 @@ const cuisineSchema = new mongoose.Schema({
         type: Number,  // Type number (float)
         required: true  // Le champ est obligatoire
     },
-    espace: { type: mongoose.Schema.Types.ObjectId, ref: "Espace" }, // one to many
+    espace: { type: mongoose.Schema.Types.ObjectId, ref: "Espace" ,required: true},  
 
 }, { timestamps: true });
 
