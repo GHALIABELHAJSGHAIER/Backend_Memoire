@@ -57,34 +57,59 @@ module.exports.updateRelayById = async (req, res, next) => {
     next(error);
   }
 };
+
+//getCuisineByIdEspace
+module.exports.getCuisineByIdEspace = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Vérifier si l'ID est valide (ObjectId MongoDB)
+    if (!id || id.length !== 24) {
+      return res.status(400).json({ status: false, message: "Invalid espace ID format" });
+    }
+
+    // Trouver toutes les cuisines qui appartiennent à un espace spécifique
+    const cuisines = await Cuisine.find({ espace: id }).populate("espace");
+
+    if (!cuisines || cuisines.length === 0) {
+      return res.status(404).json({ status: false, message: "No cuisines found for this espace" });
+    }
+
+    return res.status(200).json({ status: true, success: cuisines });
+  } catch (error) {
+    console.log("Erreur dans getCuisineByIdEspace:", error);
+    next(error);
+  }
+};
+
 /////////////
 
-// module.exports.createCuisine = async (req, res, next) => {
-//   try {
-//     const {  espaceId,relayInc, flamme, gaz } = req.body;
+module.exports.createCuisine = async (req, res, next) => {
+  try {
+    const {  espaceId,relayInc, flamme, gaz } = req.body;
 
-//     // Vérifier si la espace existe
-//     const espace = await Espace.findById(espaceId).select("+cuisines");
-//     if (!espace) {
-//       return res.status(404).json({ status: false, message: "Espace not found" });
-//     }
+    // Vérifier si la espace existe
+    const espace = await Espace.findById(espaceId).select("+cuisines");
+    if (!espace) {
+      return res.status(404).json({ status: false, message: "Espace not found" });
+    }
 
-//     // Créer l'espace
-//     const cuisine = await Cuisine.create({ relayInc, flamme, gaz, espace: espaceId });
-//     //     const espace = await Espace.create({ nom, maison: maisonId });
+    // Créer l'espace
+    const cuisine = await Cuisine.create({ relayInc, flamme, gaz, espace: espaceId });
+    //     const espace = await Espace.create({ nom, maison: maisonId });
 
-//     // Ajouter l'espace à la espace
-//     espace.cuisines.push(cuisine);
-//     await espace.save({ validateBeforeSave: false });
+    // Ajouter l'espace à la espace
+    espace.cuisines.push(cuisine);
+    await espace.save({ validateBeforeSave: false });
 
-//     return res.status(200).json({
-//       status: true,
-//       success: cuisine
-//     });
-//   } catch (error) {
-//     next(error); // Passer l'erreur au middleware de gestion d'erreurs
-//   }
-// };
+    return res.status(200).json({
+      status: true,
+      success: cuisine
+    });
+  } catch (error) {
+    next(error); // Passer l'erreur au middleware de gestion d'erreurs
+  }
+};
 // module.exports.getCuisineData = async (req, res, next) => {
 //     try {
 //         let cuisine = await Cuisine.find(); // <-- la bonne méthode ici
