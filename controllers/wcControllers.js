@@ -63,12 +63,12 @@ module.exports.getWcByIdEspace = async (req, res, next) => {
     }
 };
 
-//updateRelaySolarHeatByIdWc  
+//updateRelayByIdWc  
 // hethi bech nista3milha f app
-module.exports.updateRelaySolarHeatByIdWc = async (req, res, next) => { 
+module.exports.updateRelayByIdWc = async (req, res, next) => { 
   try {
     const { id } = req.params;
-    const { relaySolarHeat } = req.body;
+    const { relaySolarHeat , relayHeat} = req.body;
 
     // Vérifier l'ID
     if (!id || id.length !== 24) {
@@ -79,11 +79,14 @@ module.exports.updateRelaySolarHeatByIdWc = async (req, res, next) => {
     if (typeof relaySolarHeat !== "boolean") {
       return res.status(400).json({ status: false, message: "relaySolarHeat must be a boolean value" });
     }
+    if (typeof relayHeat !== "boolean") {
+      return res.status(400).json({ status: false, message: "relayHeat must be a boolean value" });
+    }
 
     // Mettre à jour uniquement relaySolarHeat
     const updatedWc = await Wc.findByIdAndUpdate(
       id,
-      { $set: { relaySolarHeat } },
+      { $set: { relaySolarHeat, relayHeat } },
       { new: true, runValidators: true }
     );
 
@@ -93,7 +96,7 @@ module.exports.updateRelaySolarHeatByIdWc = async (req, res, next) => {
 
     return res.status(200).json({ status: true, success: updatedWc });
   } catch (error) {
-    console.log("Erreur dans updateRelaySolarHeatByIdWc:", error);
+    console.log("Erreur dans updateRelayByIdWc:", error);
     next(error);
   }
 };
