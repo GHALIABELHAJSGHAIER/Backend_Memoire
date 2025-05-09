@@ -43,10 +43,12 @@ app.use(session({
   secret: process.env.Net_Secret,
   resave: false,
   saveUninitialized: false,
-  cookie: {
-    secure: false,
-    maxAge: 24 * 60 * 60 * 1000,
-  },
+cookie: {
+  secure: false,
+  //maxAge: 2 * 30 * 24 * 60 * 60 * 1000, // 2 mois en millisecondes
+   maxAge: 24 * 60 * 60 * 1000,
+   //maxAge: 72 * 60 * 60 * 1000,
+}
 }));
 
 app.use(logger("dev"));

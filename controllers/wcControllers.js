@@ -100,3 +100,62 @@ module.exports.updateRelayByIdWc = async (req, res, next) => {
     next(error);
   }
 };
+// hethi lil 5idma mta3 esp bech nista3milha f esp32
+module.exports.updateWcByIdWc = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { relaySolarHeat, relayHeat, temperature, humidity } = req.body;
+
+    // Vérifier si l'ID est valide (ex: ObjectId MongoDB)
+    if (!id || id.length !== 24) {
+      return res.status(400).json({ status: false, message: "Invalid space ID format" });
+    }
+
+    // Vérifier que des données sont envoyées
+    if (!relaySolarHeat & !relayHeat & !temperature& !humidity) {
+      return res.status(400).json({ status: false, message: "No data provided for update" });
+    }
+
+    // Trouver et mettre à jour l'espace
+    const updateWcByIdWc = await Wc.findByIdAndUpdate(
+      id,
+      { $set: { relaySolarHeat, relayHeat, temperature, humidity } },
+      { new: true, runValidators: true } // Retourne l'espace mis à jour avec validation du schéma
+    );
+
+    if (!updateWcByIdWc) {
+      return res.status(404).json({ status: false, message: "Wc not found" });
+    }
+
+    return res.status(200).json({ status: true, success: updateWcByIdWc });
+  } catch (error) {
+    next(error); // Laisse Express gérer les erreurs avec un middleware global
+  }
+};
+
+// hethi lil 5idma mta3 esp bech nista3milha f esp32
+  module.exports.getRelayByIdWc = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+  
+      // Vérifier l'ID
+      if (!id || id.length !== 24) {
+        return res.status(400).json({ status: false, message: "Invalid Wc ID format" });
+      }
+  
+      // Rechercher la Wc et ne sélectionner que le champ relayHeat
+      const wc = await Wc.findById(id).select("relayHeat & relaySolarHeat");
+       
+  
+      if (!wc) {
+        return res.status(404).json({ status: false, message: "Cuisine not found" });
+      }
+  
+      return res.status(200).json({ status: true, relaySolarHeat: wc.relaySolarHeat , relayHeat: wc.relayHeat });
+    } catch (error) {
+      console.log("Erreur dans getRelayByIdWc:", error);
+      next(error);
+    }
+  };
+
+
