@@ -3,7 +3,7 @@ const router = express.Router();
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 // Remplace "YOUR_API_KEY" par ta clé API Gemini
-const genAI = new GoogleGenerativeAI("AIzaSyBiWmU1ijeB5JU_XMXwr86If_IaIw0-3uk");
+const genAI = new GoogleGenerativeAI("AIzaSyDsCNLYUOGYOBE-8BQuBqbG48HX4Hxox-w");
 //const genAI = new GoogleGenerativeAI("AIzaSyDUB0oAkpZTiSduCdbuDWoZLkJ40yTg3xg");
 
 // Route pour générer du contenu avec Gemini

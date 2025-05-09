@@ -31,6 +31,7 @@ var GeminiRouter = require("./routes/GeminiRouter");
 var espaceRouter = require("./routes/espaceRouter");
 var cuisineRouter = require("./routes/cuisineRouter");
 var wcRouter = require("./routes/wcRouter");
+var salonRouter = require("./routes/salonRouter");
 var appareilRouter = require("./routes/appareilRouter");
 var capteurRoute = require("./routes/capteurRouter");
 var notificationRouter = require('./routes/notificationRouter');
@@ -46,8 +47,8 @@ app.use(session({
 cookie: {
   secure: false,
   //maxAge: 2 * 30 * 24 * 60 * 60 * 1000, // 2 mois en millisecondes
-   maxAge: 24 * 60 * 60 * 1000,
-   //maxAge: 72 * 60 * 60 * 1000,
+   //maxAge: 24 * 60 * 60 * 1000,
+   maxAge: 72 * 60 * 60 * 1000,
 }
 }));
 
@@ -66,6 +67,7 @@ app.use("/gemini", GeminiRouter);
 app.use("/espaces", espaceRouter);
 app.use("/cuisines", cuisineRouter);
 app.use("/wcs", wcRouter);
+app.use("/salons", salonRouter);
 app.use("/appareils", appareilRouter);
 app.use("/capteurs", capteurRoute);
 app.use("/notifications", notificationRouter);
