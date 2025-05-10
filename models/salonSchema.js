@@ -5,7 +5,11 @@ const salonSchema = new mongoose.Schema({
         type: Boolean,  // Type boolean pour le champ relay
         required: true  // Le champ est obligatoire
     },
-    relayWindow: {
+    relayOpenWindow: {
+        type: Boolean,  // Type boolean pour le champ relay
+        required: true  // Le champ est obligatoire
+    },
+        relayCloseWindow: {
         type: Boolean,  // Type boolean pour le champ relay
         required: true  // Le champ est obligatoire
     },

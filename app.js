@@ -48,7 +48,7 @@ cookie: {
   secure: false,
   //maxAge: 2 * 30 * 24 * 60 * 60 * 1000, // 2 mois en millisecondes
    //maxAge: 24 * 60 * 60 * 1000,
-   maxAge: 72 * 60 * 60 * 1000,
+   maxAge: 72 * 60 * 60 * 1000, // 3jrs
 }
 }));
 
