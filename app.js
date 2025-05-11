@@ -30,6 +30,7 @@ var maisonRouter = require("./routes/maisonRouter");
 var GeminiRouter = require("./routes/GeminiRouter");
 var espaceRouter = require("./routes/espaceRouter");
 var cuisineRouter = require("./routes/cuisineRouter");
+var garageRouter = require("./routes/garageRouter");
 var wcRouter = require("./routes/wcRouter");
 var salonRouter = require("./routes/salonRouter");
 var chambreRouter = require("./routes/chambreRouter");
@@ -67,6 +68,7 @@ app.use("/maisons", maisonRouter); // Route pour les maisons
 app.use("/gemini", GeminiRouter);
 app.use("/espaces", espaceRouter);
 app.use("/cuisines", cuisineRouter);
+app.use("/garages", garageRouter);
 app.use("/wcs", wcRouter);
 app.use("/salons", salonRouter);
 app.use("/chambres", chambreRouter);
