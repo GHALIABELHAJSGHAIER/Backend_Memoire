@@ -32,6 +32,7 @@ var espaceRouter = require("./routes/espaceRouter");
 var cuisineRouter = require("./routes/cuisineRouter");
 var wcRouter = require("./routes/wcRouter");
 var salonRouter = require("./routes/salonRouter");
+var chambreRouter = require("./routes/chambreRouter");
 var appareilRouter = require("./routes/appareilRouter");
 var capteurRoute = require("./routes/capteurRouter");
 var notificationRouter = require('./routes/notificationRouter');
@@ -46,9 +47,9 @@ app.use(session({
   saveUninitialized: false,
 cookie: {
   secure: false,
-  //maxAge: 2 * 30 * 24 * 60 * 60 * 1000, // 2 mois en millisecondes
+ maxAge: 2 * 30 * 24 * 60 * 60 * 1000, // 2 mois en millisecondes
    //maxAge: 24 * 60 * 60 * 1000,
-   maxAge: 72 * 60 * 60 * 1000, // 3jrs
+  // maxAge: 72 * 60 * 60 * 1000, // 3jrs
 }
 }));
 
@@ -68,6 +69,7 @@ app.use("/espaces", espaceRouter);
 app.use("/cuisines", cuisineRouter);
 app.use("/wcs", wcRouter);
 app.use("/salons", salonRouter);
+app.use("/chambres", chambreRouter);
 app.use("/appareils", appareilRouter);
 app.use("/capteurs", capteurRoute);
 app.use("/notifications", notificationRouter);

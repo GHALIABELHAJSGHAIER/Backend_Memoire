@@ -7,12 +7,18 @@ const upload = require('../middlewares/uploadFile');
 
 /* GET users listing. */
 router.post('/addUserClient',userController.addUserClient); 
-router.post('/addUserAdmin',userController.addUserAdmin); 
 router.post('/login',userController.login); 
+router.get('/getUserById/:id',userController.getUserById); 
+router.put('/updatePassword/:id',userController.updatePassword ); 
+
+
+
+
+/////////
+router.post('/addUserAdmin',userController.addUserAdmin); 
 router.post('/logout',userController.logout); 
 //router.get('/getAllUsers',userController.getAllUsers);  // sans authMiddlewares
 router.get('/getAllUsers',requireAuthUser,userController.getAllUsers);//avec authMiddlewares
-router.get('/getUserById/:id',userController.getUserById); 
 router.get('/searchUserByUsername',userController.searchUserByUsername); 
 router.get('/getAllUsersAge/:age',userController.getAllUsersAge); 
 router.get('/getAllUsersSortByAge',userController.getAllUsersSortByAge); 

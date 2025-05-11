@@ -2,6 +2,42 @@ const Espace = require("../models/espaceSchema");
 const Cuisine = require("../models/cuisineSchema");
 const mongoose = require("mongoose");
 
+/////////////
+
+
+
+module.exports.createCuisine = async (req, res, next) => {
+  try {
+    const { relayInc, flamme, gaz, espace } = req.body;
+
+    // Validation des champs
+    if (typeof relayInc !== 'boolean') {
+      return res.status(400).json({ success: false, error: "relayInc doit être un booléen" });
+    }
+    if (typeof flamme !== 'number' || isNaN(flamme)) {
+      return res.status(400).json({ success: false, error: "flamme doit être un nombre" });
+    }
+    if (typeof gaz !== 'number' || isNaN(gaz)) {
+      return res.status(400).json({ success: false, error: "gaz doit être un nombre" });
+    }
+    if (!mongoose.Types.ObjectId.isValid(espace)) {
+      return res.status(400).json({ success: false, error: "Format d'ID Espace invalide" });
+    }
+
+    // Optionnel : vérifier l'existence de l'Espace
+    const espaceExists = await Espace.findById(espace);
+    if (!espaceExists) {
+      return res.status(404).json({ success: false, error: "Espace introuvable" });
+    }
+
+    // Création de la cuisine
+    const newCuisine = await Cuisine.create({ relayInc, flamme, gaz, espace });
+    return res.status(201).json({ success: true, data: newCuisine });
+  } catch (err) {
+    console.error("Erreur dans createCuisine :", err);
+    next(err);
+  }
+};
 
 //getCuisineByIdEspace
 // hethi bech nista3milha f app
@@ -62,42 +98,6 @@ module.exports.updateRelayByIdCuisine = async (req, res, next) => {
   }
 };
 
-/////////////
-
-
-
-module.exports.createCuisine = async (req, res, next) => {
-  try {
-    const { relayInc, flamme, gaz, espace } = req.body;
-
-    // Validation des champs
-    if (typeof relayInc !== 'boolean') {
-      return res.status(400).json({ success: false, error: "relayInc doit être un booléen" });
-    }
-    if (typeof flamme !== 'number' || isNaN(flamme)) {
-      return res.status(400).json({ success: false, error: "flamme doit être un nombre" });
-    }
-    if (typeof gaz !== 'number' || isNaN(gaz)) {
-      return res.status(400).json({ success: false, error: "gaz doit être un nombre" });
-    }
-    if (!mongoose.Types.ObjectId.isValid(espace)) {
-      return res.status(400).json({ success: false, error: "Format d'ID Espace invalide" });
-    }
-
-    // Optionnel : vérifier l'existence de l'Espace
-    const espaceExists = await Espace.findById(espace);
-    if (!espaceExists) {
-      return res.status(404).json({ success: false, error: "Espace introuvable" });
-    }
-
-    // Création de la cuisine
-    const newCuisine = await Cuisine.create({ relayInc, flamme, gaz, espace });
-    return res.status(201).json({ success: true, data: newCuisine });
-  } catch (err) {
-    console.error("Erreur dans createCuisine :", err);
-    next(err);
-  }
-};
 
 // hethi lil 5idma mta3 esp bech nista3milha f esp32
 module.exports.updateCuisineByIdCuisine = async (req, res, next) => {
