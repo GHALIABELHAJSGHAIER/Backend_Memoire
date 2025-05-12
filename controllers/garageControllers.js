@@ -135,8 +135,10 @@ module.exports.getPortGarageByIdClient = async (req, res, next) => {
       return res.status(400).json({ status: false, message: "ID invalide" });
     }
 
-    const historique = await HistoriqueGarage.find({ garage: id })
-      .sort({ date: -1 }) // du plus récent au plus ancien
+    const { page = 1, limit = 10 } = req.query;
+const historique = await HistoriqueGarage.find({ garage: id })
+        .skip((page - 1) * limit)
+  .limit(parseInt(limit)) // du plus récent au plus ancien
       .populate('garage', 'client');
 
     if (!historique.length) {

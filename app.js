@@ -37,7 +37,7 @@ var chambreRouter = require("./routes/chambreRouter");
 var appareilRouter = require("./routes/appareilRouter");
 var capteurRoute = require("./routes/capteurRouter");
 var notificationRouter = require('./routes/notificationRouter');
-var historiqueRouter = require('./routes/historiqueActionRouter');
+//var historiqueRouter = require('./routes/historiqueActionRouter');
 
 var app = express();
 //app.use(bodyParser()); // Active le parsing du JSON
@@ -75,7 +75,7 @@ app.use("/chambres", chambreRouter);
 app.use("/appareils", appareilRouter);
 app.use("/capteurs", capteurRoute);
 app.use("/notifications", notificationRouter);
-app.use("/historiques", historiqueRouter);
+//app.use("/historiques", historiqueRouter);
 
 
 app.use(express.static("public"));
