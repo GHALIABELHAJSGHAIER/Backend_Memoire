@@ -127,7 +127,7 @@ module.exports.getPortGarageByIdClient = async (req, res, next) => {
 };
 
 //getHistoriqueByGarageId
-    module.exports.getHistoriqueByGarageId = async (req, res, next) => {
+module.exports.getHistoriqueByGarageId = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -136,16 +136,33 @@ module.exports.getPortGarageByIdClient = async (req, res, next) => {
     }
 
     const { page = 1, limit = 10 } = req.query;
-const historique = await HistoriqueGarage.find({ garage: id })
-        .skip((page - 1) * limit)
-  .limit(parseInt(limit)) // du plus récent au plus ancien
-      .populate('garage', 'client');
+    const historique = await HistoriqueGarage.find({ garage: id })
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit))
+      .populate('garage', 'client')
+      .lean(); // Convertit les documents Mongoose en objets JS simples
 
     if (!historique.length) {
       return res.status(404).json({ status: false, message: "Aucun historique trouvé" });
     }
 
-    return res.status(200).json({ status: true, historique });
+    // Convertir les dates UTC en heure locale (Tunisie UTC+1)
+    const historiqueWithLocalTime = historique.map(item => {
+      const utcDate = new Date(item.date);
+      // Pour la Tunisie (UTC+1), ajoutez 1 heure
+      const localDate = new Date(utcDate.getTime() + 60 * 60 * 1000);
+      
+      return {
+        ...item,
+        date: localDate.toISOString(), // Ou formatez comme vous voulez
+        localTime: localDate.toLocaleTimeString('fr-TN') // Format tunisien
+      };
+    });
+
+    return res.status(200).json({ 
+      status: true, 
+      historique: historiqueWithLocalTime 
+    });
   } catch (error) {
     console.log("Erreur dans getHistoriqueByGarageId:", error);
     next(error);
