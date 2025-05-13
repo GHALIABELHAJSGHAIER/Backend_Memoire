@@ -41,6 +41,27 @@ module.exports.login= async (req,res) => {
         res.status(500).json({message: error.message});
     }
 }
+/*
+module.exports.login = async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
+        const user = await UserService.checkuser(email);
+        if (!user) {
+            throw new Error('User dont exist');
+        }
+        const isMatch = await user.comparePassword(password);
+        if (isMatch == false) {
+            throw new Error('Passwod Invalid');
+        }
+        let tokenData = { _id: user._id, email: user.email }
+        const token = await UserService.generateToken(tokenData, "secretKey", '1h');
+        res.status(200).json({ status: true, token: token });
+    } catch (error) {
+        next(error);
+    }
+    
+}
+*/
 module.exports.getUserById= async (req,res) => {
     try {
         //const id = req.params.id
