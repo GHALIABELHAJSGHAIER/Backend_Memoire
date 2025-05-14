@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 
 module.exports.createWc = async (req, res, next) => {
     try {
-        const { relaySolarHeat, relayHeat, temperature, humidity, espace } = req.body;
+        const { relaySolarHeat, relayHeat, tempWC, humWC, espace } = req.body;
 
         // Validation des champs
         if (typeof relaySolarHeat !== 'boolean') {
@@ -13,11 +13,11 @@ module.exports.createWc = async (req, res, next) => {
         if (typeof relayHeat !== 'boolean') {
             return res.status(400).json({ success: false, error: "relayHeat doit être un booléen" });
         }
-        if (typeof temperature !== 'number' || isNaN(temperature)) {
-            return res.status(400).json({ success: false, error: "temperature doit être un nombre" });
+        if (typeof tempWC !== 'number' || isNaN(tempWC)) {
+            return res.status(400).json({ success: false, error: "tempWC doit être un nombre" });
         }
-        if (typeof humidity !== 'number' || isNaN(humidity)) {
-            return res.status(400).json({ success: false, error: "humidity doit être un nombre" });
+        if (typeof humWC !== 'number' || isNaN(humWC)) {
+            return res.status(400).json({ success: false, error: "humWC doit être un nombre" });
         }
         if (!mongoose.Types.ObjectId.isValid(espace)) {
             return res.status(400).json({ success: false, error: "Format d'ID Espace invalide" });
@@ -30,7 +30,7 @@ module.exports.createWc = async (req, res, next) => {
         }
 
         // Création de la wc
-        const newWc = await Wc.create({ relaySolarHeat, relayHeat, temperature, humidity, espace });
+        const newWc = await Wc.create({ relaySolarHeat, relayHeat, tempWC, humWC, espace });
         return res.status(201).json({ success: true, data: newWc });
     } catch (err) {
         console.error("Erreur dans createWc :", err);
@@ -104,7 +104,7 @@ module.exports.updateRelayByIdWc = async (req, res, next) => {
 module.exports.updateWcByIdWc = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { relaySolarHeat, relayHeat, temperature, humidity } = req.body;
+    const { relaySolarHeat, relayHeat, tempWC, humWC } = req.body;
 
     // Vérifier si l'ID est valide (ex: ObjectId MongoDB)
     if (!id || id.length !== 24) {
@@ -112,14 +112,14 @@ module.exports.updateWcByIdWc = async (req, res, next) => {
     }
 
     // Vérifier que des données sont envoyées
-    if (!relaySolarHeat & !relayHeat & !temperature& !humidity) {
+    if (!relaySolarHeat && !relayHeat && !tempWC && !humWC) {
       return res.status(400).json({ status: false, message: "No data provided for update" });
     }
 
     // Trouver et mettre à jour l'espace
     const updateWcByIdWc = await Wc.findByIdAndUpdate(
       id,
-      { $set: { relaySolarHeat, relayHeat, temperature, humidity } },
+      { $set: { relaySolarHeat, relayHeat, tempWC, humWC } },
       { new: true, runValidators: true } // Retourne l'espace mis à jour avec validation du schéma
     );
 
@@ -134,28 +134,55 @@ module.exports.updateWcByIdWc = async (req, res, next) => {
 };
 
 // hethi lil 5idma mta3 esp bech nista3milha f esp32
-  module.exports.getRelayByIdWc = async (req, res, next) => {
-    try {
-      const { id } = req.params;
+  // module.exports.getRelayByIdWc = async (req, res, next) => {
+  //   try {
+  //     const { id } = req.params;
   
-      // Vérifier l'ID
-      if (!id || id.length !== 24) {
-        return res.status(400).json({ status: false, message: "Invalid Wc ID format" });
-      }
+  //     // Vérifier l'ID
+  //     if (!id || id.length !== 24) {
+  //       return res.status(400).json({ status: false, message: "Invalid Wc ID format" });
+  //     }
   
-      // Rechercher la Wc et ne sélectionner que le champ relayHeat
-      const wc = await Wc.findById(id).select("relayHeat & relaySolarHeat");
+  //     // Rechercher la Wc et ne sélectionner que le champ relayHeat
+  //     const wc = await Wc.findById(id).select("relayHeat & relaySolarHeat");
        
   
-      if (!wc) {
-        return res.status(404).json({ status: false, message: "Cuisine not found" });
-      }
+  //     if (!wc) {
+  //       return res.status(404).json({ status: false, message: "Cuisine not found" });
+  //     }
   
-      return res.status(200).json({ status: true, relaySolarHeat: wc.relaySolarHeat , relayHeat: wc.relayHeat });
+  //     return res.status(200).json({ status: true, relaySolarHeat: wc.relaySolarHeat , relayHeat: wc.relayHeat });
+  //   } catch (error) {
+  //     console.log("Erreur dans getRelayByIdWc:", error);
+  //     next(error);
+  //   }
+  // };
+
+
+// Change getRelayByIdWc to use consistent response format
+module.exports.getRelayByIdWc = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        
+        if (!id || id.length !== 24) {
+            return res.status(400).json({ status: false, message: "Invalid Wc ID format" });
+        }
+        
+        const wc = await Wc.findById(id).select("relayHeat relaySolarHeat");
+        
+        if (!wc) {
+            return res.status(404).json({ status: false, message: "WC not found" });
+        }
+        
+        return res.status(200).json({ 
+            status: true, 
+            data: {
+                relaySolarHeat: wc.relaySolarHeat,
+                relayHeat: wc.relayHeat
+            }
+        });
     } catch (error) {
-      console.log("Erreur dans getRelayByIdWc:", error);
-      next(error);
+        console.log("Erreur dans getRelayByIdWc:", error);
+        next(error);
     }
-  };
-
-
+};

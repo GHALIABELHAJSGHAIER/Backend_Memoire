@@ -9,11 +9,11 @@ const wcSchema = new mongoose.Schema({
         type: Boolean,  // Type boolean pour le champ relay
         required: true  // Le champ est obligatoire
     },
-    temperature: {
+    tempWC: {
         type: Number,  // Type number (float)
         required: true  // Le champ est obligatoire
     },
-    humidity: {
+    humWC: {
         type: Number,  // Type number (float)
         required: true  // Le champ est obligatoire
     },
