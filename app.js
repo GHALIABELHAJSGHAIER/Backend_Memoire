@@ -48,12 +48,12 @@ app.use(session({
   saveUninitialized: false,
 cookie: {
   secure: false,
- maxAge: 2 * 30 * 24 * 60 * 60 * 1000, // 2 mois en millisecondes
-   //maxAge: 24 * 60 * 60 * 1000,
-  // maxAge: 72 * 60 * 60 * 1000, // 3jrs
+  maxAge: 24 * 60 * 60 * 1000,
+  // maxAge = 90 * 24 * 60 * 60 * 1000; // 90 jours en millisecondes
+
 }
 }));
-
+ 
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

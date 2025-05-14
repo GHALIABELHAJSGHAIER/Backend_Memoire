@@ -6,6 +6,9 @@ const Maison = require('../models/maisonSchema');
 require('dotenv').config();
 //const SECRET_KEY = process.env.SECRET_KEY
 const maxTime = 24 *60 * 60 //24H
+//const maxTime = 90 * 24 * 60 * 60; // 90 jours = 3 mois
+
+
 //const maxTime = 1 * 60 //1min
 const createToken = (id) => {
     return jwt.sign({id},'net secret pfe', {expiresIn: maxTime })
@@ -13,13 +16,13 @@ const createToken = (id) => {
 
 module.exports.addUserClient = async (req,res) => {
     try {
-        const {username , email , password , age} = req.body;
+        const {username , email , password  } = req.body;
         const roleClient = 'client'
         // if (!checkIfUserExists) {
         //     throw new Error("User not found");
         //   }
         const user = await userModel.create({
-            username,email ,password,role :roleClient, age
+            username,email ,password,role :roleClient 
         })
         res.status(200).json({status:true,success:"User Registered Successfully"});
     } catch (error) {

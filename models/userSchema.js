@@ -45,13 +45,34 @@ const userSchema = new mongoose.Schema(
 
 );
 
+// userSchema.pre("save", async function (next) {
+//   try {
+//     const salt = await bcrypt.genSalt();
+//     const user = this;
+//     user.password = await bcrypt.hash(user.password, salt);
+//     user.etat = false ;
+//     user.count = user.count + 1;
+//     next();
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 userSchema.pre("save", async function (next) {
   try {
-    const salt = await bcrypt.genSalt();
     const user = this;
-    user.password = await bcrypt.hash(user.password, salt);
-    user.etat = false ;
-    user.count = user.count + 1;
+
+    // Vérifie si le mot de passe a été modifié
+    if (user.isModified('password')) {
+      const salt = await bcrypt.genSalt();
+      user.password = await bcrypt.hash(user.password, salt);
+    }
+
+    // Initialisation de valeurs si nécessaire
+    if (user.isNew) {
+      user.etat = false;
+      user.count = 1; // pas += 1 car user.count peut être undefined
+    }
+
     next();
   } catch (error) {
     next(error);
