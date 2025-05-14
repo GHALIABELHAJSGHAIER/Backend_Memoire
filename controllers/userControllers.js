@@ -112,18 +112,33 @@ module.exports.updatePassword = async (req, res) => {
     }
 };
 module.exports.updateuserById = async (req, res) => {
-try {
-    const {id} = req.params
-    const {email , username} = req.body;
+  try {
+    const { id } = req.params;
+    const { email, username } = req.body;
 
-    await userModel.findByIdAndUpdate(id,{$set : {email , username }})
-    const updated = await userModel.findById(id)
+    if (!email && !username) {
+      return res.status(400).json({ message: "Aucune donnée à mettre à jour." });
+    }
 
-    res.status(200).json({updated})
-} catch (error) {
-    res.status(500).json({message: error.message});
-}
-}
+    const updated = await userModel.findByIdAndUpdate(
+      id,
+      { $set: { email, username } },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
+    }
+
+    res.status(200).json({
+      message: "Utilisateur mis à jour avec succès.",
+      updated
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 
 /////
 module.exports.logout= async (req,res) => {
