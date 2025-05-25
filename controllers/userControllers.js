@@ -16,13 +16,13 @@ const createToken = (id) => {
 
 module.exports.addUserClient = async (req,res) => {
     try {
-        const {username , email , password  } = req.body;
+        const {username , email ,telephone, password  } = req.body;
         const roleClient = 'client'
         // if (!checkIfUserExists) {
         //     throw new Error("User not found");
         //   }
         const user = await userModel.create({
-            username,email ,password,role :roleClient 
+            username,email ,telephone,password,role :roleClient 
         })
         res.status(200).json({status:true,success:"User Registered Successfully"});
     } catch (error) {
@@ -114,15 +114,15 @@ module.exports.updatePassword = async (req, res) => {
 module.exports.updateuserById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { email, username } = req.body;
+    const { email, username, telephone } = req.body;
 
-    if (!email && !username) {
+    if (!email && !username && !telephone) {
       return res.status(400).json({ message: "Aucune donnée à mettre à jour." });
     }
 
     const updated = await userModel.findByIdAndUpdate(
       id,
-      { $set: { email, username } },
+      { $set: { email, username,telephone } },
       { new: true }
     );
 
@@ -137,6 +137,22 @@ module.exports.updateuserById = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+module.exports.deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Supprimer l'utilisateur par son ID
+        const deletedUser = await userModel.findByIdAndDelete(id);
+
+        if (!deletedUser) {
+            return res.status(404).json({ status: false, message: "Utilisateur non trouvé." });
+        }
+
+        res.status(200).json({ status: true, message: "Utilisateur supprimé avec succès." });
+    } catch (error) {
+        res.status(500).json({ status: false, message: error.message });
+    }
 };
 
 

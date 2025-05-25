@@ -10,7 +10,7 @@ router.post('/addUserClient',userController.addUserClient);
 router.post('/login',userController.login); 
 router.get('/getUserById/:id',userController.getUserById); 
 router.put('/updatePassword/:id',userController.updatePassword ); 
-
+router.delete('/deleteUser/:id',userController.deleteUser ); 
 
 
 
