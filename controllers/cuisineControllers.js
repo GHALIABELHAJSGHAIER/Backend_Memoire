@@ -65,7 +65,7 @@ module.exports.getCuisineByIdEspace = async (req, res, next) => {
 };
 //updateRelayByIdCuisine  
 // hethi bech nista3milha f app
-module.exports.updateRelayByIdCuisine = async (req, res, next) => { 
+module.exports.updateRelayByIdCuisine = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { relayInc } = req.body;
@@ -132,27 +132,27 @@ module.exports.updateCuisineByIdCuisine = async (req, res, next) => {
   }
 };
 // hethi lil 5idma mta3 esp bech nista3milha f esp32
-  module.exports.getRelayByIdCuisine = async (req, res, next) => {
-    try {
-      const { id } = req.params;
-  
-      // Vérifier l'ID
-      if (!id || id.length !== 24) {
-        return res.status(400).json({ status: false, message: "Invalid cuisine ID format" });
-      }
-  
-      // Rechercher la cuisine et ne sélectionner que le champ relayInc
-      const cuisine = await Cuisine.findById(id).select("relayInc");
-  
-      if (!cuisine) {
-        return res.status(404).json({ status: false, message: "Cuisine not found" });
-      }
-  
-      return res.status(200).json({ status: true, relayInc: cuisine.relayInc });
-    } catch (error) {
-      console.log("Erreur dans getRelayByIdCuisine:", error);
-      next(error);
+module.exports.getRelayByIdCuisine = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Vérifier l'ID
+    if (!id || id.length !== 24) {
+      return res.status(400).json({ status: false, message: "Invalid cuisine ID format" });
     }
-  };
+
+    // Rechercher la cuisine et ne sélectionner que le champ relayInc
+    const cuisine = await Cuisine.findById(id).select("relayInc");
+
+    if (!cuisine) {
+      return res.status(404).json({ status: false, message: "Cuisine not found" });
+    }
+
+    return res.status(200).json({ status: true, relayInc: cuisine.relayInc });
+  } catch (error) {
+    console.log("Erreur dans getRelayByIdCuisine:", error);
+    next(error);
+  }
+};
 
 
