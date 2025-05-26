@@ -1,4 +1,5 @@
-const User = require('../models/userSchema');
+ 
+const Maison = require('../models/maisonSchema');
 const Garage = require("../models/garageSchema");
 const mongoose = require("mongoose");
 const HistoriqueGarage = require('../models/historiqueGarageSchema'); // N'oublie pas d'importer
@@ -7,25 +8,25 @@ const HistoriqueGarage = require('../models/historiqueGarageSchema'); // N'oubli
  
 module.exports.createGarage = async (req, res, next) => {
   try {
-    const { portGarage, client } = req.body;
+    const { portGarage, maison  } = req.body;
 
     // Validation des champs
     if (typeof portGarage !== 'boolean') {
       return res.status(400).json({ success: false, error: "portGarage doit être un booléen" });
     }
     
-    if (!mongoose.Types.ObjectId.isValid(client)) {
-      return res.status(400).json({ success: false, error: "Format d'ID client invalide" });
+    if (!mongoose.Types.ObjectId.isValid(maison )) {
+      return res.status(400).json({ success: false, error: "Format d'ID maison  invalide" });
     }
 
     // Optionnel : vérifier l'existence de l'client
-    const userExists = await User.findById(client);
-    if (!userExists) {
-      return res.status(404).json({ success: false, error: "user introuvable" });
+    const maisonExists = await Maison.findById(maison );
+    if (!maisonExists) {
+      return res.status(404).json({ success: false, error: "maison introuvable" });
     }
 
     // Création de la Garage
-    const newGarage = await Garage.create({ portGarage, client });
+    const newGarage = await Garage.create({ portGarage, maison  });
     return res.status(201).json({ success: true, data: newGarage });
   } catch (err) {
     console.error("Erreur dans createGarage :", err);
@@ -33,25 +34,25 @@ module.exports.createGarage = async (req, res, next) => {
   }
 };
 // hethi bech nista3milha f app
-module.exports.getPortGarageByIdClient = async (req, res, next) => {
+module.exports.getPortGarageByIdMaison = async (req, res, next) => {
   try {
     const { id } = req.params;
 
     // Vérifier si l'ID est valide (ObjectId MongoDB)
     if (!id || id.length !== 24) {
-      return res.status(400).json({ status: false, message: "Invalid user ID format" });
+      return res.status(400).json({ status: false, message: "Invalid maison ID format" });
     }
 
     // Trouver toutes les garages qui appartiennent à un client spécifique
-    const garages = await Garage.find({ client: id }).populate("client");
+    const garages = await Garage.find({ maison : id }).populate("maison");
 
     if (!garages || garages.length === 0) {
-      return res.status(404).json({ status: false, message: "No garages found for this client" });
+      return res.status(404).json({ status: false, message: "No garages found for this maison " });
     }
 
     return res.status(200).json({ status: true, success: garages });
   } catch (error) {
-    console.log("Erreur dans getPortGarageByIdClient:", error);
+    console.log("Erreur dans getPortGarageByIdMaison:", error);
     next(error);
   }
 };
@@ -139,7 +140,7 @@ module.exports.getHistoriqueByGarageId = async (req, res, next) => {
     const historique = await HistoriqueGarage.find({ garage: id })
       .skip((page - 1) * limit)
       .limit(parseInt(limit))
-      .populate('garage', 'client')
+      .populate('garage', 'maison ')
       .lean(); // Convertit les documents Mongoose en objets JS simples
 
     if (!historique.length) {

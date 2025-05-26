@@ -6,7 +6,7 @@ const garageSchema = new mongoose.Schema({
         required: true  // Le champ est obligatoire
     },
    
-    client: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Référence au client
+    maison: { type: mongoose.Schema.Types.ObjectId, ref: 'Maison', required: true }, // Référence au client
 
 }, { timestamps: true });
 
