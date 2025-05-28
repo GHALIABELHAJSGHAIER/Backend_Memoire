@@ -127,6 +127,32 @@ module.exports.getPortGarageByIdMaison = async (req, res, next) => {
   }
 };
 
+
+// hethi lil 5idma mta3 esp bech nista3milha f esp32
+  module.exports.getPortGarageByIdGarage = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+  
+      // Vérifier l'ID
+      if (!id || id.length !== 24) {
+        return res.status(400).json({ status: false, message: "Invalid Garage ID format" });
+      }
+  
+      // Rechercher la Garage et ne sélectionner que le champ portGarage
+      const garage = await Garage.findById(id).select("portGarage");
+  
+      if (!garage) {
+        return res.status(404).json({ status: false, message: "garage not found" });
+      }
+  
+      return res.status(200).json({ status: true, portGarage: garage.portGarage });
+    } catch (error) {
+      console.log("Erreur dans getPortGarageByIdGarage:", error);
+      next(error);
+    }
+
+  };
+
 //getHistoriqueByGarageId
 module.exports.getHistoriqueByGarageId = async (req, res, next) => {
   try {
@@ -169,30 +195,26 @@ module.exports.getHistoriqueByGarageId = async (req, res, next) => {
     next(error);
   }
 };
+module.exports.deleteHistoriqueById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
 
-// hethi lil 5idma mta3 esp bech nista3milha f esp32
-  module.exports.getPortGarageByIdGarage = async (req, res, next) => {
-    try {
-      const { id } = req.params;
-  
-      // Vérifier l'ID
-      if (!id || id.length !== 24) {
-        return res.status(400).json({ status: false, message: "Invalid Garage ID format" });
-      }
-  
-      // Rechercher la Garage et ne sélectionner que le champ portGarage
-      const garage = await Garage.findById(id).select("portGarage");
-  
-      if (!garage) {
-        return res.status(404).json({ status: false, message: "garage not found" });
-      }
-  
-      return res.status(200).json({ status: true, portGarage: garage.portGarage });
-    } catch (error) {
-      console.log("Erreur dans getPortGarageByIdGarage:", error);
-      next(error);
+    // Vérifier que l'ID est valide
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ status: false, message: "ID historique invalide" });
     }
 
-  };
+    // Essayer de supprimer l'historique par son ID
+    const deletedHistorique = await HistoriqueGarage.findByIdAndDelete(id);
 
+    if (!deletedHistorique) {
+      return res.status(404).json({ status: false, message: "Historique non trouvé" });
+    }
+
+    return res.status(200).json({ status: true, message: "Historique supprimé avec succès" });
+  } catch (error) {
+    console.error("Erreur dans deleteHistoriqueById :", error);
+    next(error);
+  }
+};
 
