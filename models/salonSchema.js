@@ -1,15 +1,15 @@
 const mongoose = require("mongoose");
 
 const salonSchema = new mongoose.Schema({
-    relayClim: {
+    relayClimSalon: {
         type: Boolean,  // Type boolean pour le champ relay
         required: true  // Le champ est obligatoire
     },
-    relayOpenWindow: {
+    relayOpenWindowSalon: {
         type: Boolean,  // Type boolean pour le champ relay
         required: true  // Le champ est obligatoire
     },
-        relayCloseWindow: {
+        relayCloseWindowSalon: {
         type: Boolean,  // Type boolean pour le champ relay
         required: true  // Le champ est obligatoire
     },

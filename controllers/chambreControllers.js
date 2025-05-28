@@ -6,18 +6,18 @@ const mongoose = require("mongoose");
 module.exports.createChambre = async (req, res, next) => {
   try {
     const {
-      relayClim,
+      relayClimChambre,
       relayLamp,
       relayOpenWindow,
       relayCloseWindow,
-      temperature,
-      humidity,
+      tempChambre,
+      humChambre,
       espace
     } = req.body;
 
     // Validation
     if (
-      typeof relayClim !== 'boolean' ||
+      typeof relayClimChambre !== 'boolean' ||
       typeof relayLamp !== 'boolean' ||
       typeof relayOpenWindow !== 'boolean' ||
       typeof relayCloseWindow !== 'boolean'
@@ -25,11 +25,11 @@ module.exports.createChambre = async (req, res, next) => {
       return res.status(400).json({ success: false, error: "Les relais doivent être des booléens." });
     }
 
-    if (typeof temperature !== 'number' || isNaN(temperature)) {
+    if (typeof tempChambre !== 'number' || isNaN(tempChambre)) {
       return res.status(400).json({ success: false, error: "La température doit être un nombre." });
     }
 
-    if (typeof humidity !== 'number' || isNaN(humidity)) {
+    if (typeof humChambre !== 'number' || isNaN(humChambre)) {
       return res.status(400).json({ success: false, error: "L'humidité doit être un nombre." });
     }
 
@@ -43,12 +43,12 @@ module.exports.createChambre = async (req, res, next) => {
     }
 
     const newChambre = await Chambre.create({
-      relayClim,
+      relayClimChambre,
       relayLamp,
       relayOpenWindow,
       relayCloseWindow,
-      temperature,
-      humidity,
+      tempChambre,
+      humChambre,
       espace
     });
 
@@ -86,10 +86,10 @@ module.exports.updateChambreByIdChambre = async (req, res, next) => {
     const {
       relayOpenWindow,
       relayCloseWindow,
-      relayClim,
+      relayClimChambre,
       relayLamp,
-      temperature,
-      humidity
+      tempChambre,
+      humChambre
     } = req.body;
 
     // Vérifier si l'ID est valide (ex: ObjectId MongoDB)
@@ -101,10 +101,10 @@ module.exports.updateChambreByIdChambre = async (req, res, next) => {
     if (
       relayOpenWindow === undefined &&
       relayCloseWindow === undefined &&
-      relayClim === undefined &&
+      relayClimChambre === undefined &&
       relayLamp === undefined &&
-      temperature === undefined &&
-      humidity === undefined
+      tempChambre === undefined &&
+      humChambre === undefined
     ) {
       return res.status(400).json({ status: false, message: "No data provided for update" });
     }
@@ -113,10 +113,10 @@ module.exports.updateChambreByIdChambre = async (req, res, next) => {
     const updateFields = {};
     if (relayOpenWindow !== undefined) updateFields.relayOpenWindow = relayOpenWindow;
     if (relayCloseWindow !== undefined) updateFields.relayCloseWindow = relayCloseWindow;
-    if (relayClim !== undefined) updateFields.relayClim = relayClim;
+    if (relayClimChambre !== undefined) updateFields.relayClimChambre = relayClimChambre;
     if (relayLamp !== undefined) updateFields.relayLamp = relayLamp;
-    if (temperature !== undefined) updateFields.temperature = temperature;
-    if (humidity !== undefined) updateFields.humidity = humidity;
+    if (tempChambre !== undefined) updateFields.tempChambre = tempChambre;
+    if (humChambre !== undefined) updateFields.humChambre = humChambre;
 
     // Mise à jour de la chambre
     const updatedChambre = await Chambre.findByIdAndUpdate(
@@ -141,7 +141,7 @@ module.exports.updateRelayByIdChambre = async (req, res, next) => {
   try {
     const { id } = req.params;
     const {
-      relayClim,
+      relayClimChambre,
       relayLamp,
       relayOpenWindow,
       relayCloseWindow
@@ -155,7 +155,7 @@ module.exports.updateRelayByIdChambre = async (req, res, next) => {
       id,
       {
         $set: {
-          ...(relayClim !== undefined && { relayClim }),
+          ...(relayClimChambre !== undefined && { relayClimChambre }),
           ...(relayLamp !== undefined && { relayLamp }),
           ...(relayOpenWindow !== undefined && { relayOpenWindow }),
           ...(relayCloseWindow !== undefined && { relayCloseWindow })
@@ -184,13 +184,13 @@ module.exports.getRelayByIdChambre = async (req, res, next) => {
       return res.status(400).json({ status: false, message: "ID chambre invalide." });
     }
 
-    const chambre = await Chambre.findById(id).select("relayClim relayLamp relayOpenWindow relayCloseWindow");
+    const chambre = await Chambre.findById(id).select("relayClimChambre relayLamp relayOpenWindow relayCloseWindow");
 
     if (!chambre) {
       return res.status(404).json({ status: false, message: "Chambre non trouvée." });
     }
 
-    return res.status(200).json({ status: true, relays: chambre });
+    return res.status(200).json({ status: true, data: chambre });
   } catch (error) {
     console.log("Erreur dans getRelayByIdChambre:", error);
     next(error);

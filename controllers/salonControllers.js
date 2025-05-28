@@ -4,19 +4,19 @@ const mongoose = require("mongoose");
 
 module.exports.createSalon = async (req, res, next) => {
     try {
-        //humidity  temperature       relayClim
-        const { relayOpenWindow , relayCloseWindow, relayClim, temperature, humidity, espace } = req.body;
+        //humidity  temperature       relayClimSalon
+        const { relayOpenWindowSalon , relayCloseWindowSalon, relayClimSalon, temperature, humidity, espace } = req.body;
 
         // Validation des champs
-        if (typeof relayOpenWindow !== 'boolean') {
-            return res.status(400).json({ success: false, error: "relayOpenWindow doit être un booléen" });
+        if (typeof relayOpenWindowSalon !== 'boolean') {
+            return res.status(400).json({ success: false, error: "relayOpenWindowSalon doit être un booléen" });
         }
         
-        if (typeof relayCloseWindow !== 'boolean') {
-            return res.status(400).json({ success: false, error: "relayCloseWindow doit être un booléen" });
+        if (typeof relayCloseWindowSalon !== 'boolean') {
+            return res.status(400).json({ success: false, error: "relayCloseWindowSalon doit être un booléen" });
         }
-        if (typeof relayClim !== 'boolean') {
-            return res.status(400).json({ success: false, error: "relayClim doit être un booléen" });
+        if (typeof relayClimSalon !== 'boolean') {
+            return res.status(400).json({ success: false, error: "relayClimSalon doit être un booléen" });
         }
         if (typeof temperature !== 'number' || isNaN(temperature)) {
             return res.status(400).json({ success: false, error: "temperature doit être un nombre" });
@@ -35,7 +35,7 @@ module.exports.createSalon = async (req, res, next) => {
         }
 
         // Création de la wc
-        const newSalon = await Salon.create({ relayOpenWindow , relayCloseWindow, relayClim, temperature, humidity, espace });
+        const newSalon = await Salon.create({ relayOpenWindowSalon , relayCloseWindowSalon, relayClimSalon, temperature, humidity, espace });
         return res.status(201).json({ success: true, data: newSalon });
     } catch (err) {
         console.error("Erreur dans createWc :", err);
@@ -73,7 +73,7 @@ module.exports.getSalonByIdEspace = async (req, res, next) => {
 module.exports.updateRelayByIdSalon = async (req, res, next) => { 
   try {
     const { id } = req.params;
-    const { relayOpenWindow ,relayCloseWindow, relayClim} = req.body;
+    const { relayOpenWindowSalon ,relayCloseWindowSalon, relayClimSalon} = req.body;
 
     // Vérifier l'ID
     if (!id || id.length !== 24) {
@@ -81,20 +81,20 @@ module.exports.updateRelayByIdSalon = async (req, res, next) => {
     }
 
     // Vérifier si   est bien fourni
-    if (typeof relayCloseWindow !== "boolean") {
-      return res.status(400).json({ status: false, message: "relayCloseWindow must be a boolean value" });
+    if (typeof relayCloseWindowSalon !== "boolean") {
+      return res.status(400).json({ status: false, message: "relayCloseWindowSalon must be a boolean value" });
     }
-    if (typeof relayOpenWindow !== "boolean") {
-      return res.status(400).json({ status: false, message: "relayOpenWindow must be a boolean value" });
+    if (typeof relayOpenWindowSalon !== "boolean") {
+      return res.status(400).json({ status: false, message: "relayOpenWindowSalon must be a boolean value" });
     }
-    if (typeof relayClim !== "boolean") {
-      return res.status(400).json({ status: false, message: "relayClim must be a boolean value" });
+    if (typeof relayClimSalon !== "boolean") {
+      return res.status(400).json({ status: false, message: "relayClimSalon must be a boolean value" });
     }
 
     // Mettre à jour uniquement  
     const updatedSalon = await Salon.findByIdAndUpdate(
       id,
-      { $set: { relayOpenWindow, relayCloseWindow , relayClim } },
+      { $set: { relayOpenWindowSalon, relayCloseWindowSalon , relayClimSalon } },
       { new: true, runValidators: true }
     );
 
@@ -112,7 +112,7 @@ module.exports.updateRelayByIdSalon = async (req, res, next) => {
 module.exports.updateSalonByIdSalon = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { relayOpenWindow,relayCloseWindow, relayClim, temperature, humidity } = req.body;
+    const { relayOpenWindowSalon,relayCloseWindowSalon, relayClimSalon, temperature, humidity } = req.body;
 
     // Vérifier si l'ID est valide (ex: ObjectId MongoDB)
     if (!id || id.length !== 24) {
@@ -120,14 +120,14 @@ module.exports.updateSalonByIdSalon = async (req, res, next) => {
     }
 
     // Vérifier que des données sont envoyées
-    if (!relayOpenWindow & !relayCloseWindow & !relayClim & !temperature& !humidity) {
+    if (!relayOpenWindowSalon & !relayCloseWindowSalon & !relayClimSalon & !temperature& !humidity) {
       return res.status(400).json({ status: false, message: "No data provided for update" });
     }
 
     // Trouver et mettre à jour l'espace
     const updateSalonByIdSalon = await Salon.findByIdAndUpdate(
       id,
-      { $set: { relayOpenWindow , relayCloseWindow, relayClim, temperature, humidity } },
+      { $set: { relayOpenWindowSalon , relayCloseWindowSalon, relayClimSalon, temperature, humidity } },
       { new: true, runValidators: true } // Retourne l'espace mis à jour avec validation du schéma
     );
 
@@ -152,14 +152,14 @@ module.exports.updateSalonByIdSalon = async (req, res, next) => {
       }
   
       // Rechercher la salon et ne sélectionner que le champ relayClim
-      const salon = await Salon.findById(id).select("relayClim & relayOpenWindow & relayCloseWindow");
+      const salon = await Salon.findById(id).select("relayClimSalon & relayOpenWindowSalon & relayCloseWindowSalon");
        
   
       if (!salon) {
         return res.status(404).json({ status: false, message: "Cuisine not found" });
       }
   
-      return res.status(200).json({ status: true, relayOpenWindow: salon.relayOpenWindow, relayCloseWindow: salon.relayCloseWindow , relayClim: salon.relayClim });
+      return res.status(200).json({ status: true, relayOpenWindowSalon: salon.relayOpenWindowSalon, relayCloseWindowSalon: salon.relayCloseWindowSalon , relayClimSalon: salon.relayClimSalon });
     } catch (error) {
       console.log("Erreur dans getRelayByIdSalon:", error);
       next(error);
