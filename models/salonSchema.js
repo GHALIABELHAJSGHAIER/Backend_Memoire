@@ -13,11 +13,11 @@ const salonSchema = new mongoose.Schema({
         type: Boolean,  // Type boolean pour le champ relay
         required: true  // Le champ est obligatoire
     },
-    temperature: {
+    tempSalon: {
         type: Number,  // Type number (float)
         required: true  // Le champ est obligatoire
     },
-    humidity: {
+    humSalon: {
         type: Number,  // Type number (float)
         required: true  // Le champ est obligatoire
     },
