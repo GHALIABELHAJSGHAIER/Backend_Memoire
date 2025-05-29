@@ -1,107 +1,70 @@
- 
 const Maison = require('../models/maisonSchema');
 const Garage = require("../models/garageSchema");
 const mongoose = require("mongoose");
-const HistoriqueGarage = require('../models/historiqueGarageSchema'); // N'oublie pas d'importer
+const HistoriqueGarage = require('../models/historiqueGarageSchema');
 
-
- 
+// ✅ Créer un nouveau garage
 module.exports.createGarage = async (req, res, next) => {
   try {
-    const { portGarage, maison  } = req.body;
+    const { portGarage, maison } = req.body;
 
-    // Validation des champs
     if (typeof portGarage !== 'boolean') {
       return res.status(400).json({ success: false, error: "portGarage doit être un booléen" });
     }
-    
-    if (!mongoose.Types.ObjectId.isValid(maison )) {
-      return res.status(400).json({ success: false, error: "Format d'ID maison  invalide" });
+
+    if (!mongoose.Types.ObjectId.isValid(maison)) {
+      return res.status(400).json({ success: false, error: "Format d'ID maison invalide" });
     }
 
-    // Optionnel : vérifier l'existence de l'client
-    const maisonExists = await Maison.findById(maison );
+    const maisonExists = await Maison.findById(maison);
     if (!maisonExists) {
-      return res.status(404).json({ success: false, error: "maison introuvable" });
+      return res.status(404).json({ success: false, error: "Maison introuvable" });
     }
 
-    // Création de la Garage
-    const newGarage = await Garage.create({ portGarage, maison  });
+    const newGarage = await Garage.create({ portGarage, maison });
     return res.status(201).json({ success: true, data: newGarage });
+
   } catch (err) {
-    console.error("Erreur dans createGarage :", err);
+    console.error("Erreur dans createGarage:", err);
     next(err);
   }
 };
-// hethi bech nista3milha f app
+
+// ✅ Obtenir tous les garages liés à une maison (pour l'app)
 module.exports.getPortGarageByIdMaison = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    // Vérifier si l'ID est valide (ObjectId MongoDB)
     if (!id || id.length !== 24) {
-      return res.status(400).json({ status: false, message: "Invalid maison ID format" });
+      return res.status(400).json({ status: false, message: "Format d'ID maison invalide" });
     }
 
-    // Trouver toutes les garages qui appartiennent à un client spécifique
-    const garages = await Garage.find({ maison : id }).populate("maison");
+    const garages = await Garage.find({ maison: id }).populate("maison");
 
     if (!garages || garages.length === 0) {
-      return res.status(404).json({ status: false, message: "No garages found for this maison " });
+      return res.status(404).json({ status: false, message: "Aucun garage trouvé pour cette maison" });
     }
 
     return res.status(200).json({ status: true, success: garages });
+
   } catch (error) {
     console.log("Erreur dans getPortGarageByIdMaison:", error);
     next(error);
   }
 };
-//updatePortGarageByIdGarage  
-// hethi bech nista3milha f app
-// module.exports.updatePortGarageByIdGarage = async (req, res, next) => { 
-//   try {
-//     const { id } = req.params;
-//     const { portGarage } = req.body;
 
-//     // Vérifier l'ID
-//     if (!id || id.length !== 24) {
-//       return res.status(400).json({ status: false, message: "Invalid Garage ID format" });
-//     }
-
-//     // Vérifier si portGarage est bien fourni
-//     if (typeof portGarage !== "boolean") {
-//       return res.status(400).json({ status: false, message: "portGarage must be a boolean value" });
-//     }
-
-//     // Mettre à jour uniquement portGarage
-//     const updatedGarage = await Garage.findByIdAndUpdate(
-//       id,
-//       { $set: { portGarage } },
-//       { new: true, runValidators: true }
-//     );
-
-//     if (!updatedGarage) {
-//       return res.status(404).json({ status: false, message: "Garage not found" });
-//     }
-
-//     return res.status(200).json({ status: true, success: updatedGarage });
-//   } catch (error) {
-//     console.log("Erreur dans updatePortGarageById:", error);
-//     next(error);
-//   }
-// };
-
- module.exports.updatePortGarageByIdGarage = async (req, res, next) => { 
+// ✅ Mettre à jour portGarage et ajouter à l'historique (pour l'app)
+module.exports.updatePortGarageByIdGarage = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { portGarage } = req.body;
 
     if (!id || id.length !== 24) {
-      return res.status(400).json({ status: false, message: "Invalid Garage ID format" });
+      return res.status(400).json({ status: false, message: "Format d'ID Garage invalide" });
     }
 
     if (typeof portGarage !== "boolean") {
-      return res.status(400).json({ status: false, message: "portGarage must be a boolean value" });
+      return res.status(400).json({ status: false, message: "portGarage doit être un booléen" });
     }
 
     const updatedGarage = await Garage.findByIdAndUpdate(
@@ -111,47 +74,51 @@ module.exports.getPortGarageByIdMaison = async (req, res, next) => {
     );
 
     if (!updatedGarage) {
-      return res.status(404).json({ status: false, message: "Garage not found" });
+      return res.status(404).json({ status: false, message: "Garage introuvable" });
     }
 
-    
+    // Ajouter à l'historique
     await HistoriqueGarage.create({
       garage: updatedGarage._id,
       etat: portGarage,
     });
 
     return res.status(200).json({ status: true, success: updatedGarage });
+
   } catch (error) {
-    console.log("Erreur dans updatePortGarageById:", error);
+    console.log("Erreur dans updatePortGarageByIdGarage:", error);
     next(error);
   }
 };
 
+// ✅ Lire le portGarage d'un garage spécifique (pour l’ESP32)
+module.exports.getPortGarageByIdGarage = async (req, res, next) => {
+  try {
+    const { id } = req.params;
 
-// hethi lil 5idma mta3 esp bech nista3milha f esp32
-  module.exports.getPortGarageByIdGarage = async (req, res, next) => {
-    try {
-      const { id } = req.params;
-  
-      // Vérifier l'ID
-      if (!id || id.length !== 24) {
-        return res.status(400).json({ status: false, message: "Invalid Garage ID format" });
-      }
-  
-      // Rechercher la Garage et ne sélectionner que le champ portGarage
-      const garage = await Garage.findById(id).select("portGarage");
-  
-      if (!garage) {
-        return res.status(404).json({ status: false, message: "garage not found" });
-      }
-  
-      return res.status(200).json({ status: true, portGarage: garage.portGarage });
-    } catch (error) {
-      console.log("Erreur dans getPortGarageByIdGarage:", error);
-      next(error);
+    if (!id || id.length !== 24) {
+      return res.status(400).json({ status: false, message: "Format d'ID Garage invalide" });
     }
 
-  };
+    const garage = await Garage.findById(id).select("portGarage");
+
+    if (!garage) {
+      return res.status(404).json({ status: false, message: "Garage introuvable" });
+    }
+
+    return res.status(200).json({
+      status: true,
+      success: {
+        _id: id,
+        portGarage: garage.portGarage
+      }
+    });
+
+  } catch (error) {
+    console.error("Erreur dans getPortGarageByIdGarage:", error);
+    return res.status(500).json({ status: false, message: "Erreur serveur" });
+  }
+};
 
 //getHistoriqueByGarageId
 module.exports.getHistoriqueByGarageId = async (req, res, next) => {

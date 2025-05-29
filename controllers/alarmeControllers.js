@@ -14,9 +14,10 @@ module.exports.createAlarme = async (req, res, next) => {
     }
 
     // Vérification de l'ID maison
-    if (!mongoose.Types.ObjectId.isValid(maison)) {
-      return res.status(400).json({ success: false, error: "Format d'ID maison invalide" });
-    }
+    if (!isValidObjectId(id)) {
+  return res.status(400).json({ message: "ID invalide" });
+}
+
 
     const maisonExists = await Maison.findById(maison);
     if (!maisonExists) {
@@ -220,7 +221,7 @@ module.exports.getEtatAlarmeByIdAlarme = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    // Vérification de l'ID
+    // Vérification de l'ID (doit être une chaîne de 24 caractères)
     if (!id || id.length !== 24) {
       return res.status(400).json({ status: false, message: "Format d'ID alarme invalide" });
     }
@@ -232,9 +233,17 @@ module.exports.getEtatAlarmeByIdAlarme = async (req, res, next) => {
       return res.status(404).json({ status: false, message: "Alarme non trouvée" });
     }
 
-    return res.status(200).json({ status: true, etat: alarme.etat });
+    // Réponse structurée
+    return res.status(200).json({
+      status: true,
+      success: {
+        _id: id,
+        etat: alarme.etat
+      }
+    });
+
   } catch (error) {
     console.error("Erreur dans getEtatAlarmeByIdAlarme:", error);
-    next(error);
+    return res.status(500).json({ status: false, message: "Erreur interne du serveur" });
   }
 };
