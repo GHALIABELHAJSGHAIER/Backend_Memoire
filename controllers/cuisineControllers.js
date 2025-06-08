@@ -148,11 +148,19 @@ module.exports.getRelayByIdCuisine = async (req, res, next) => {
       return res.status(404).json({ status: false, message: "Cuisine not found" });
     }
 
-    return res.status(200).json({ status: true, relayInc: cuisine.relayInc });
+    // Retourner l'objet avec _id et relayInc dans un champ "data"
+    return res.status(200).json({
+      status: true,
+      data: {
+        _id: cuisine._id,
+        relayInc: cuisine.relayInc
+      }
+    });
   } catch (error) {
     console.log("Erreur dans getRelayByIdCuisine:", error);
     next(error);
   }
 };
+
 
 
