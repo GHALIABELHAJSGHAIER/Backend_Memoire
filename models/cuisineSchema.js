@@ -2,19 +2,22 @@ const mongoose = require("mongoose");
 
 const cuisineSchema = new mongoose.Schema({
     relayInc: {
-        type: Boolean,  // Type boolean pour le champ relay
-        required: true  // Le champ est obligatoire
+        type: Boolean,
+        required: true
     },
     flamme: {
-        type: Number,  // Type number (float)
-        required: true  // Le champ est obligatoire
+        type: Boolean,
+        required: true
     },
     gaz: {
-        type: Number,  // Type number (float)
-        required: true  // Le champ est obligatoire
+        type: Boolean,
+        required: true
     },
-    espace: { type: mongoose.Schema.Types.ObjectId, ref: "Espace" ,required: true},  
-
+    espace: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "Espace", 
+        required: true 
+    },
 }, { timestamps: true });
 
 const Cuisine = mongoose.model("Cuisine", cuisineSchema);

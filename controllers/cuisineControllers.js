@@ -105,21 +105,24 @@ module.exports.updateCuisineByIdCuisine = async (req, res, next) => {
     const { id } = req.params;
     const { relayInc, flamme, gaz } = req.body;
 
-    // Vérifier si l'ID est valide (ex: ObjectId MongoDB)
     if (!id || id.length !== 24) {
       return res.status(400).json({ status: false, message: "Invalid space ID format" });
     }
 
-    // Vérifier que des données sont envoyées
-    if (!relayInc & !flamme & !gaz) {
+    // ✅ Correction ici
+    if (!("relayInc" in req.body) && !("flamme" in req.body) && !("gaz" in req.body)) {
       return res.status(400).json({ status: false, message: "No data provided for update" });
     }
 
-    // Trouver et mettre à jour l'espace
+    const updateFields = {};
+    if ("relayInc" in req.body) updateFields.relayInc = relayInc;
+    if ("flamme" in req.body) updateFields.flamme = flamme;
+    if ("gaz" in req.body) updateFields.gaz = gaz;
+
     const updateCuisineByIdCuisine = await Cuisine.findByIdAndUpdate(
       id,
-      { $set: { relayInc, flamme, gaz } },
-      { new: true, runValidators: true } // Retourne l'espace mis à jour avec validation du schéma
+      { $set: updateFields },
+      { new: true, runValidators: true }
     );
 
     if (!updateCuisineByIdCuisine) {
@@ -128,9 +131,10 @@ module.exports.updateCuisineByIdCuisine = async (req, res, next) => {
 
     return res.status(200).json({ status: true, success: updateCuisineByIdCuisine });
   } catch (error) {
-    next(error); // Laisse Express gérer les erreurs avec un middleware global
+    next(error);
   }
 };
+
 // hethi lil 5idma mta3 esp bech nista3milha f esp32
 module.exports.getRelayByIdCuisine = async (req, res, next) => {
   try {
